@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Mijn profiel</h2>
+    <p><strong>Gebruikersnaam:</strong> {{ user.username }}</p>
+    <p><strong>Rol:</strong> {{ profiel.rol }}</p>
+    <p><strong>Huidige discipline:</strong> 
+        {% if profiel.discipline %}
+            {{ profiel.discipline }}
+        {% else %}
+            Nog niet ingesteld
+        {% endif %}
+    </p>
+
+    <h3>Discipline wijzigen</h3>
+    <form method="post">
+        {% csrf_token %}
+        <select name="discipline">
+            {% for discipline in disciplines %}
+                <option value="{{ discipline.id }}"
+                    {% if profiel.discipline == discipline %}selected{% endif %}>
+                    {{ discipline.naam }}
+                </option>
+            {% endfor %}
+        </select><br><br>
+        <button type="submit">Opslaan</button>
+    </form>
+
+    <h3>Mijn voltooide challenges</h3>
+    {% for deelname in profiel.user.challengedeelname_set.all %}
+        {% if deelname.status == 'goedgekeurd' %}
+            <div style="background: white; padding: 0.8rem; margin-bottom: 0.8rem; border-radius: 8px; border-left: 4px solid green;">
+                <strong>{{ deelname.challenge.titel }}</strong>
+                <p>{{ deelname.feedback }}</p>
+            </div>
+        {% endif %}
+    {% empty %}
+        <p>Nog geen voltooide challenges.</p>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Ingediende Challenges</h2>
+    {% for deelname in deelnames %}
+        <div style="background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+            <p><strong>Deelnemer:</strong> {{ deelname.deelnemer.username }}</p>
+            <p><strong>Challenge:</strong> {{ deelname.challenge.titel }}</p>
+            <p><strong>Ingediend op:</strong> {{ deelname.ingediend_op }}</p>
+            <a href="{% url 'beoordelen' deelname.id %}">
+                <button>Beoordelen</button>
+            </a>
+        </div>
+    {% empty %}
+        <p>Er zijn geen ingediende challenges.</p>
+    {% endfor %}
+{% endblock %}

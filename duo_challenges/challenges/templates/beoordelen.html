@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Challenge beoordelen</h2>
+    <p><strong>Deelnemer:</strong> {{ deelname.deelnemer.username }}</p>
+    <p><strong>Challenge:</strong> {{ deelname.challenge.titel }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <label>Beslissing:</label><br>
+        <select name="beslissing">
+            <option value="goedgekeurd">Goedgekeurd</option>
+            <option value="afgekeurd">Afgekeurd</option>
+        </select><br><br>
+        <label>Feedback:</label><br>
+        <textarea name="feedback" rows="4" cols="50"></textarea><br><br>
+        <button type="submit">Opslaan</button>
+    </form>
+{% endblock %}

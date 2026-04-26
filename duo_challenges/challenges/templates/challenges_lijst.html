@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Beschikbare Challenges</h2>
+    {% for challenge in challenges %}
+        <div style="background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+            <h3>{{ challenge.titel }}</h3>
+            <p>{{ challenge.omschrijving }}</p>
+            <p>
+                Disciplines: 
+                <strong>{{ challenge.discipline_een }}</strong> + 
+                <strong>{{ challenge.discipline_twee }}</strong>
+            </p>
+            <a href="{% url 'deelnemen' challenge.id %}">
+                <button>Doe mee</button>
+            </a>
+        </div>
+    {% empty %}
+        <p>Er zijn nog geen challenges aangemaakt.</p>
+    {% endfor %}
+{% endblock %}

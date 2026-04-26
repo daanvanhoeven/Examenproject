@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Mijn Challenges</h2>
+    {% for deelname in deelnames %}
+        <div style="background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+            <h3>{{ deelname.challenge.titel }}</h3>
+            <p><strong>Status:</strong> {{ deelname.status }}</p>
+
+            {% if deelname.feedback %}
+                <p><strong>Feedback:</strong> {{ deelname.feedback }}</p>
+            {% endif %}
+
+            {% if deelname.status == 'bezig' %}
+                <a href="{% url 'indienen' deelname.id %}">
+                    <button>Indienen</button>
+                </a>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>Je doet nog niet mee aan een challenge.</p>
+    {% endfor %}
+{% endblock %}

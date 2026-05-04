@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Project aanmaken voor: {{ challenge.titel }}</h2>
+    <p>{{ challenge.omschrijving }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <label>GitHub link:</label><br>
+        <input type="url" name="github_link" placeholder="https://github.com/..." style="width: 100%; padding: 0.5rem;"><br><br>
+        <label>Beschrijving:</label><br>
+        <textarea name="beschrijving" rows="4" style="width: 100%; padding: 0.5rem;"></textarea><br><br>
+        <button type="submit">Project aanmaken</button>
+    </form>
+{% endblock %}

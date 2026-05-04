@@ -6,12 +6,12 @@
             <h3>{{ challenge.titel }}</h3>
             <p>{{ challenge.omschrijving }}</p>
             <p>
-                Disciplines: 
-                <strong>{{ challenge.discipline_een }}</strong> + 
+                Disciplines:
+                <strong>{{ challenge.discipline_een }}</strong> +
                 <strong>{{ challenge.discipline_twee }}</strong>
             </p>
-            <a href="{% url 'deelnemen' challenge.id %}">
-                <button>Doe mee</button>
+            <a href="{% url 'project_aanmaken' challenge.id %}">
+                <button>Project aanmaken</button>
             </a>
         </div>
     {% empty %}

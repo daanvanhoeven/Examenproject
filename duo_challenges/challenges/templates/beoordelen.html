@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h2>Challenge beoordelen</h2>
-    <p><strong>Deelnemer:</strong> {{ deelname.deelnemer.username }}</p>
-    <p><strong>Challenge:</strong> {{ deelname.challenge.titel }}</p>
+    <h2>Project beoordelen</h2>
+    <p><strong>Deelnemer:</strong> {{ project.deelnemer.username }}</p>
+    <p><strong>Challenge:</strong> {{ project.challenge.titel }}</p>
+    <p><strong>GitHub:</strong> <a href="{{ project.github_link }}" target="_blank">{{ project.github_link }}</a></p>
 
     <form method="post">
         {% csrf_token %}
@@ -12,7 +13,7 @@
             <option value="afgekeurd">Afgekeurd</option>
         </select><br><br>
         <label>Feedback:</label><br>
-        <textarea name="feedback" rows="4" cols="50"></textarea><br><br>
+        <textarea name="feedback" rows="4" style="width: 100%; padding: 0.5rem;"></textarea><br><br>
         <button type="submit">Opslaan</button>
     </form>
 {% endblock %}

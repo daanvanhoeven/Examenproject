@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Nieuwe Challenge aanmaken</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>Titel:</label><br>
+        <input type="text" name="titel" style="width: 100%; padding: 0.5rem;"><br><br>
+
+        <label>Omschrijving:</label><br>
+        <textarea name="omschrijving" rows="4" style="width: 100%; padding: 0.5rem;"></textarea><br><br>
+
+        <label>Discipline 1:</label><br>
+        <select name="discipline_een" style="width: 100%; padding: 0.5rem;">
+            {% for discipline in disciplines %}
+                <option value="{{ discipline.id }}">{{ discipline.naam }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Discipline 2:</label><br>
+        <select name="discipline_twee" style="width: 100%; padding: 0.5rem;">
+            {% for discipline in disciplines %}
+                <option value="{{ discipline.id }}">{{ discipline.naam }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <button type="submit">Challenge aanmaken</button>
+    </form>
+{% endblock %}

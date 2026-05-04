@@ -3,29 +3,30 @@
     <h2>Mijn profiel</h2>
     <p><strong>Gebruikersnaam:</strong> {{ user.username }}</p>
     <p><strong>Rol:</strong> {{ profiel.rol }}</p>
-    <p><strong>Huidige discipline:</strong> 
-        {% if profiel.discipline %}
-            {{ profiel.discipline }}
-        {% else %}
+
+    <p><strong>Mijn disciplines:</strong>
+        {% for d in profiel.disciplines.all %}
+            <span style="background: #2E75B6; color: white; padding: 2px 8px; border-radius: 4px; margin-right: 4px;">{{ d.naam }}</span>
+        {% empty %}
             Nog niet ingesteld
-        {% endif %}
+        {% endfor %}
     </p>
 
-    <h3>Discipline wijzigen</h3>
+    <h3>Disciplines wijzigen</h3>
     <form method="post">
         {% csrf_token %}
-        <select name="discipline">
-            {% for discipline in disciplines %}
-                <option value="{{ discipline.id }}"
-                    {% if profiel.discipline == discipline %}selected{% endif %}>
-                    {{ discipline.naam }}
-                </option>
-            {% endfor %}
-        </select><br><br>
+        {% for discipline in disciplines %}
+            <label>
+                <input type="checkbox" name="disciplines" value="{{ discipline.id }}"
+                    {% if discipline in profiel.disciplines.all %}checked{% endif %}>
+                {{ discipline.naam }}
+            </label><br>
+        {% endfor %}
+        <br>
         <button type="submit">Opslaan</button>
     </form>
 
-    <h3>Mijn voltooide challenges</h3>
+    <h3>Mijn voltooide projecten</h3>
     {% for deelname in profiel.user.challengedeelname_set.all %}
         {% if deelname.status == 'goedgekeurd' %}
             <div style="background: white; padding: 0.8rem; margin-bottom: 0.8rem; border-radius: 8px; border-left: 4px solid green;">
@@ -34,6 +35,6 @@
             </div>
         {% endif %}
     {% empty %}
-        <p>Nog geen voltooide challenges.</p>
+        <p>Nog geen voltooide projecten.</p>
     {% endfor %}
 {% endblock %}

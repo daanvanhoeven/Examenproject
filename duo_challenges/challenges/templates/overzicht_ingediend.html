@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h2>Ingediende Challenges</h2>
-    {% for deelname in deelnames %}
+    <h2>Ingediende Projecten</h2>
+    {% for project in projecten %}
         <div style="background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-            <p><strong>Deelnemer:</strong> {{ deelname.deelnemer.username }}</p>
-            <p><strong>Challenge:</strong> {{ deelname.challenge.titel }}</p>
-            <p><strong>Ingediend op:</strong> {{ deelname.ingediend_op }}</p>
-            <a href="{% url 'beoordelen' deelname.id %}">
+            <p><strong>Deelnemer:</strong> {{ project.deelnemer.username }}</p>
+            <p><strong>Challenge:</strong> {{ project.challenge.titel }}</p>
+            <p><strong>GitHub:</strong> <a href="{{ project.github_link }}" target="_blank">{{ project.github_link }}</a></p>
+            <p><strong>Ingediend op:</strong> {{ project.ingediend_op }}</p>
+            <a href="{% url 'beoordelen' project.id %}">
                 <button>Beoordelen</button>
             </a>
         </div>
     {% empty %}
-        <p>Er zijn geen ingediende challenges.</p>
+        <p>Er zijn geen ingediende projecten.</p>
     {% endfor %}
 {% endblock %}

@@ -12,8 +12,12 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('challenge/<int:challenge_id>/deelnemen/', views.deelnemen, name='deelnemen'),
     path('deelname/<int:deelname_id>/indienen/', views.indienen, name='indienen'),
-    path('deelname/<int:deelname_id>/beoordelen/', views.beoordelen, name='beoordelen'),
+    path('project/<int:project_id>/beoordelen/', views.beoordelen, name='beoordelen'),
     path('mijn-challenges/', views.mijn_challenges, name='mijn_challenges'),
     path('overzicht/', views.overzicht_ingediend, name='overzicht_ingediend'),
+    path('challenge/<int:challenge_id>/project/aanmaken/', views.project_aanmaken, name='project_aanmaken'),
+    path('project/<int:project_id>/indienen/', views.project_indienen, name='project_indienen'),
+    path('mijn-projecten/', views.mijn_projecten, name='mijn_projecten'),
+    path('challenge/aanmaken/', views.challenge_aanmaken, name='challenge_aanmaken'),
 ]
 

@@ -19,12 +19,10 @@ class Profiel(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     rol = models.CharField(max_length=20, choices=ROL_KEUZES, default='deelnemer')
-    discipline = models.ForeignKey(
-        Discipline,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
+    disciplines = models.ManyToManyField(
+    Discipline,
+    blank=True
+)
 
     def __str__(self):
         return f"{self.user.username} ({self.rol})"
@@ -87,3 +85,29 @@ class ChallengeDeelname(models.Model):
 def maak_profiel_aan(sender, instance, created, **kwargs):
     if created:
         Profiel.objects.create(user=instance)
+
+
+
+
+
+class Project(models.Model):
+    challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
+    deelnemer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='projecten')
+    partner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='partner_projecten')
+    github_link = models.URLField()
+    beschrijving = models.TextField(blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('bezig', 'Bezig'),
+            ('ingediend', 'Ingediend'),
+            ('goedgekeurd', 'Goedgekeurd'),
+            ('afgekeurd', 'Afgekeurd'),
+        ],
+        default='bezig'
+    )
+    feedback = models.TextField(blank=True, null=True)
+    ingediend_op = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.deelnemer.username} - {self.challenge.titel}"

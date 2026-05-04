@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>Mijn Projecten</h2>
+    {% for project in projecten %}
+        <div style="background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+            <h3>{{ project.challenge.titel }}</h3>
+            <p><strong>Status:</strong> {{ project.status }}</p>
+            <p><strong>GitHub:</strong>
+                <a href="{{ project.github_link }}" target="_blank">{{ project.github_link }}</a>
+            </p>
+            {% if project.beschrijving %}
+                <p><strong>Beschrijving:</strong> {{ project.beschrijving }}</p>
+            {% endif %}
+            <p><strong>Partner:</strong>
+                {% if project.partner %}
+                    {{ project.partner.username }}
+                {% else %}
+                    <em>Nog geen partner gevonden — wacht tot iemand met een andere discipline meedoet.</em>
+                {% endif %}
+            </p>
+            {% if project.feedback %}
+                <p><strong>Feedback:</strong> {{ project.feedback }}</p>
+            {% endif %}
+            {% if project.status == 'bezig' %}
+                <a href="{% url 'project_indienen' project.id %}">
+                    <button>Indienen</button>
+                </a>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>Je hebt nog geen projecten aangemaakt.</p>
+    {% endfor %}
+{% endblock %}

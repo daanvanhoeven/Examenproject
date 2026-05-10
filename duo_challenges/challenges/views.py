@@ -9,17 +9,17 @@ from .models import Challenge, Profiel, ChallengeDeelname, Discipline, Project
 
 
 def zoek_partner(gebruiker, challenge):
-    # Haal de disciplines van de huidige gebruiker op
+    # Haal de disciplines van de huidige gebruiker op.
     eigen_profiel = Profiel.objects.get(user=gebruiker)
     eigen_disciplines = eigen_profiel.disciplines.all()
 
-    # Zoek andere projecten bij dezelfde challenge zonder partner
+    # Zoek andere projecten bij dezelfde challenge zonder partner.
     andere_projecten = Project.objects.filter(
         challenge=challenge,
         partner=None
     ).exclude(deelnemer=gebruiker)
 
-    # Loop door andere projecten en zoek iemand met een andere discipline
+    # Zoek iemand met een andere discipline voor de automatische matching.
     for project in andere_projecten:
         try:
             ander_profiel = Profiel.objects.get(user=project.deelnemer)
@@ -28,7 +28,7 @@ def zoek_partner(gebruiker, challenge):
 
         andere_disciplines = ander_profiel.disciplines.all()
 
-        # Controleer of er geen overlap is in disciplines
+        # Geen overlap betekent dat deze gebruiker een goede partner is.
         overlap = eigen_disciplines.filter(id__in=andere_disciplines).exists()
         if not overlap:
             return project.deelnemer
@@ -36,6 +36,7 @@ def zoek_partner(gebruiker, challenge):
     return None
 
 def login_view(request):
+    # Verwerkt het inloggen van de gebruiker.
     fout = None
 
     if request.method == 'POST':
@@ -53,18 +54,21 @@ def login_view(request):
 
 
 def logout_view(request):
+    # Logt de gebruiker uit en stuurt terug naar de loginpagina.
     logout(request)
     return redirect('login')
 
 
 @login_required(login_url='login')
 def challenges_lijst(request):
+    # Toont alle challenges op de overzichtspagina.
     challenges = Challenge.objects.all()
     return render(request, 'challenges_lijst.html', {'challenges': challenges})
 
 
 @login_required(login_url='login')
 def profiel(request):
+    # Laat de gebruiker zijn profiel en disciplines aanpassen.
     profiel, aangemaakt = Profiel.objects.get_or_create(user=request.user)
     disciplines = Discipline.objects.all()
 
@@ -83,12 +87,14 @@ def profiel(request):
 
 @login_required(login_url='login')
 def mijn_challenges(request):
+    # Toont de challenges waaraan de gebruiker meedoet.
     deelnames = ChallengeDeelname.objects.filter(deelnemer=request.user)
     return render(request, 'mijn_challenges.html', {'deelnames': deelnames})
 
 
 @login_required(login_url='login')
 def deelnemen(request, challenge_id):
+    # Schrijft de gebruiker in voor een challenge als dat nog niet gebeurd is.
     challenge = get_object_or_404(Challenge, id=challenge_id)
 
     al_deelnemer = ChallengeDeelname.objects.filter(
@@ -108,6 +114,7 @@ def deelnemen(request, challenge_id):
 
 @login_required(login_url='login')
 def indienen(request, deelname_id):
+    # Zet een deelname op ingediend en bewaart de inleverdatum.
     deelname = get_object_or_404(ChallengeDeelname, id=deelname_id, deelnemer=request.user)
 
     if deelname.status == 'bezig':
@@ -120,6 +127,7 @@ def indienen(request, deelname_id):
 
 @login_required(login_url='login')
 def beoordelen(request, project_id):
+    # Alleen begeleiders mogen projecten beoordelen en feedback geven.
     project = get_object_or_404(Project, id=project_id)
 
     try:
@@ -145,6 +153,7 @@ def beoordelen(request, project_id):
 
 @login_required(login_url='login')
 def overzicht_ingediend(request):
+    # Laat begeleiders alle ingediende projecten zien.
     try:
         profiel = Profiel.objects.get(user=request.user)
     except Profiel.DoesNotExist:
@@ -161,6 +170,7 @@ def overzicht_ingediend(request):
 
 @login_required(login_url='login')
 def project_aanmaken(request, challenge_id):
+    # Maakt een project aan met GitHub-link voor de gekozen challenge.
     challenge = get_object_or_404(Challenge, id=challenge_id)
 
     al_project = Project.objects.filter(
@@ -175,10 +185,10 @@ def project_aanmaken(request, challenge_id):
         github_link = request.POST['github_link']
         beschrijving = request.POST['beschrijving']
 
-        # Zoek automatisch een partner
+        # Zoek automatisch een partner.
         partner = zoek_partner(request.user, challenge)
 
-        # Maak het project aan
+        # Maak het project aan.
         nieuw_project = Project.objects.create(
             challenge=challenge,
             deelnemer=request.user,
@@ -188,7 +198,7 @@ def project_aanmaken(request, challenge_id):
             status='bezig'
         )
 
-        # Koppel ook de partner terug aan dit project
+        # Koppel ook de partner terug aan dit project.
         if partner:
             partner_project = Project.objects.filter(
                 deelnemer=partner,
@@ -205,6 +215,7 @@ def project_aanmaken(request, challenge_id):
 
 @login_required(login_url='login')
 def project_indienen(request, project_id):
+    # Zet een project op ingediend zodat een begeleider het kan beoordelen.
     project = get_object_or_404(Project, id=project_id, deelnemer=request.user)
 
     if project.status == 'bezig':
@@ -217,11 +228,13 @@ def project_indienen(request, project_id):
 
 @login_required(login_url='login')
 def mijn_projecten(request):
+    # Toont de projecten van de ingelogde gebruiker.
     projecten = Project.objects.filter(deelnemer=request.user)
     return render(request, 'mijn_projecten.html', {'projecten': projecten})
 
 @login_required(login_url='login')
 def challenge_aanmaken(request):
+    # Alleen begeleiders mogen nieuwe challenges aanmaken.
     try:
         profiel = Profiel.objects.get(user=request.user)
     except Profiel.DoesNotExist:

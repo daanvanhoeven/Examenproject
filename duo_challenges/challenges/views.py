@@ -170,9 +170,9 @@ def overzicht_ingediend(request):
 
 @login_required(login_url='login')
 def project_aanmaken(request, challenge_id):
-    # Maakt een project aan met GitHub-link voor de gekozen challenge.
     challenge = get_object_or_404(Challenge, id=challenge_id)
 
+    # Check of deelnemer al een project heeft bij deze challenge
     al_project = Project.objects.filter(
         deelnemer=request.user,
         challenge=challenge
@@ -181,14 +181,33 @@ def project_aanmaken(request, challenge_id):
     if al_project:
         return redirect('mijn_projecten')
 
+    # Haal disciplines van de deelnemer op
+    try:
+        profiel = Profiel.objects.get(user=request.user)
+    except Profiel.DoesNotExist:
+        return redirect('profiel')
+
+    eigen_disciplines = profiel.disciplines.all()
+    vereiste_disciplines = [challenge.discipline_een, challenge.discipline_twee]
+
+    # Check of deelnemer minstens één vereiste discipline heeft
+    heeft_discipline = eigen_disciplines.filter(
+        id__in=[d.id for d in vereiste_disciplines]
+    ).exists()
+
+    if not heeft_discipline:
+        return render(request, 'geen_toegang.html', {
+            'challenge': challenge,
+            'eigen_disciplines': eigen_disciplines,
+            'vereiste_disciplines': vereiste_disciplines,
+        })
+
     if request.method == 'POST':
         github_link = request.POST['github_link']
         beschrijving = request.POST['beschrijving']
 
-        # Zoek automatisch een partner.
         partner = zoek_partner(request.user, challenge)
 
-        # Maak het project aan.
         nieuw_project = Project.objects.create(
             challenge=challenge,
             deelnemer=request.user,
@@ -198,7 +217,6 @@ def project_aanmaken(request, challenge_id):
             status='bezig'
         )
 
-        # Koppel ook de partner terug aan dit project.
         if partner:
             partner_project = Project.objects.filter(
                 deelnemer=partner,

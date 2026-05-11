@@ -1,14 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h2>Project aanmaken voor: {{ challenge.titel }}</h2>
-    <p>{{ challenge.omschrijving }}</p>
+    <div style="background: #EBF3FB; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0 0 0.5rem 0;"> Challenge: {{ challenge.titel }}</h2>
+        <p style="margin: 0; color: #444;">{{ challenge.omschrijving }}</p>
+        <p style="margin: 0.5rem 0 0 0;">
+            Vereiste disciplines:
+            <strong>{{ challenge.discipline_een }}</strong> + 
+            <strong>{{ challenge.discipline_twee }}</strong>
+        </p>
+    </div>
 
-    <form method="post">
-        {% csrf_token %}
-        <label>GitHub link:</label><br>
-        <input type="url" name="github_link" placeholder="https://github.com/..." style="width: 100%; padding: 0.5rem;"><br><br>
-        <label>Beschrijving:</label><br>
-        <textarea name="beschrijving" rows="4" style="width: 100%; padding: 0.5rem;"></textarea><br><br>
-        <button type="submit">Project aanmaken</button>
-    </form>
+    <div style="background: white; padding: 1.5rem; border-radius: 8px;">
+        <h3 style="margin: 0 0 1rem 0;"> Jouw project aanmaken</h3>
+        <p style="color: #666; margin-bottom: 1rem;">
+            Een <strong>project</strong> is jouw inlevering voor deze challenge. 
+            Vul hieronder je GitHub link in waar je aan gaat werken.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <label><strong>GitHub link:</strong></label><br>
+            <input type="url" name="github_link" placeholder="https://github.com/..." 
+                style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px;"><br>
+            <label><strong>Beschrijving:</strong></label><br>
+            <textarea name="beschrijving" rows="4" placeholder="Beschrijf kort wat jullie gaan maken..."
+                style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px;"></textarea><br>
+            <button type="submit" style="background: #2E75B6; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;">
+                Project aanmaken
+            </button>
+        </form>
+    </div>
 {% endblock %}

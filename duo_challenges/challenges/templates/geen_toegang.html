@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div style="background: white; padding: 1.5rem; border-radius: 8px; border-left: 4px solid red;">
+        <h2 style="color: red;">❌ Je hebt niet de juiste discipline</h2>
+        <p>Om mee te doen aan <strong>{{ challenge.titel }}</strong> heb je één van deze disciplines nodig:</p>
+        <ul>
+            {% for d in vereiste_disciplines %}
+                <li><strong>{{ d.naam }}</strong></li>
+            {% endfor %}
+        </ul>
+        <p>Jouw huidige disciplines:</p>
+        <ul>
+            {% for d in eigen_disciplines %}
+                <li>{{ d.naam }}</li>
+            {% empty %}
+                <li><em>Je hebt nog geen disciplines ingesteld.</em></li>
+            {% endfor %}
+        </ul>
+        <p>
+            Ga naar je <a href="{% url 'profiel' %}">profielpagina</a> om je disciplines aan te passen,
+            of ga terug naar de <a href="{% url 'challenges_lijst' %}">challenges lijst</a>.
+        </p>
+    </div>
+{% endblock %}

@@ -1,33 +1,65 @@
 {% extends 'base.html' %}
 {% block content %}
     <h2>Mijn Projecten</h2>
+    <p style="color: #666; margin-bottom: 1.5rem;">
+        Dit zijn jouw <strong>projecten</strong> — dit zijn jouw inleveringen bij de challenges waar je aan meedoet.
+    </p>
+
     {% for project in projecten %}
-        <div style="background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-            <h3>{{ project.challenge.titel }}</h3>
-            <p><strong>Status:</strong> {{ project.status }}</p>
-            <p><strong>GitHub:</strong>
+        <div style="background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 8px; border-left: 4px solid 
+            {% if project.status == 'goedgekeurd' %}green
+            {% elif project.status == 'afgekeurd' %}red
+            {% else %}#2E75B6{% endif %};">
+
+            <p style="color: #888; font-size: 0.85rem; margin: 0;"> Challenge</p>
+            <h3 style="margin: 0 0 0.5rem 0;">{{ project.challenge.titel }}</h3>
+
+            <p style="margin: 0.3rem 0;">
+                <strong>Status project:</strong>
+                <span style="background: 
+                    {% if project.status == 'goedgekeurd' %}#E2EFDA
+                    {% elif project.status == 'afgekeurd' %}#FFE0E0
+                    {% elif project.status == 'ingediend' %}#FFF3CD
+                    {% else %}#EBF3FB{% endif %};
+                    padding: 2px 8px; border-radius: 4px;">
+                    {{ project.status }}
+                </span>
+            </p>
+
+            <p style="margin: 0.3rem 0;">
+                <strong>GitHub:</strong> 
                 <a href="{{ project.github_link }}" target="_blank">{{ project.github_link }}</a>
             </p>
+
             {% if project.beschrijving %}
-                <p><strong>Beschrijving:</strong> {{ project.beschrijving }}</p>
+                <p style="margin: 0.3rem 0;"><strong>Beschrijving:</strong> {{ project.beschrijving }}</p>
             {% endif %}
-            <p><strong>Partner:</strong>
+
+            <p style="margin: 0.3rem 0;">
+                <strong>Partner:</strong>
                 {% if project.partner %}
                     {{ project.partner.username }}
                 {% else %}
-                    <em>Nog geen partner gevonden — wacht tot iemand met een andere discipline meedoet.</em>
+                    <em style="color: #888;">Nog geen partner — wacht tot iemand met een andere discipline meedoet.</em>
                 {% endif %}
             </p>
+
             {% if project.feedback %}
-                <p><strong>Feedback:</strong> {{ project.feedback }}</p>
+                <div style="background: #f9f9f9; padding: 0.8rem; border-radius: 4px; margin-top: 0.5rem;">
+                    <strong>Feedback van begeleider:</strong>
+                    <p style="margin: 0.3rem 0;">{{ project.feedback }}</p>
+                </div>
             {% endif %}
+
             {% if project.status == 'bezig' %}
                 <a href="{% url 'project_indienen' project.id %}">
-                    <button>Indienen</button>
+                    <button style="margin-top: 0.8rem; background: #2E75B6; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;">
+                        Indienen
+                    </button>
                 </a>
             {% endif %}
         </div>
     {% empty %}
-        <p>Je hebt nog geen projecten aangemaakt.</p>
+        <p>Je hebt nog geen projecten aangemaakt. Ga naar <a href="{% url 'challenges_lijst' %}">Challenges</a> om mee te doen!</p>
     {% endfor %}
 {% endblock %}

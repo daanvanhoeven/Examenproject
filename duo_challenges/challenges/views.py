@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import Challenge, Profiel, ChallengeDeelname, Discipline, Project
+from django.contrib.auth.models import User
 
 
 
@@ -172,7 +173,6 @@ def overzicht_ingediend(request):
 def project_aanmaken(request, challenge_id):
     challenge = get_object_or_404(Challenge, id=challenge_id)
 
-    # Check of deelnemer al een project heeft bij deze challenge
     al_project = Project.objects.filter(
         deelnemer=request.user,
         challenge=challenge
@@ -181,7 +181,6 @@ def project_aanmaken(request, challenge_id):
     if al_project:
         return redirect('mijn_projecten')
 
-    # Haal disciplines van de deelnemer op
     try:
         profiel = Profiel.objects.get(user=request.user)
     except Profiel.DoesNotExist:
@@ -190,7 +189,6 @@ def project_aanmaken(request, challenge_id):
     eigen_disciplines = profiel.disciplines.all()
     vereiste_disciplines = [challenge.discipline_een, challenge.discipline_twee]
 
-    # Check of deelnemer minstens één vereiste discipline heeft
     heeft_discipline = eigen_disciplines.filter(
         id__in=[d.id for d in vereiste_disciplines]
     ).exists()
@@ -202,13 +200,30 @@ def project_aanmaken(request, challenge_id):
             'vereiste_disciplines': vereiste_disciplines,
         })
 
+    # Zoek mogelijke partners: deelnemers met de andere vereiste discipline
+    eigen_discipline_ids = eigen_disciplines.values_list('id', flat=True)
+    andere_discipline_ids = [
+        d.id for d in vereiste_disciplines
+        if d.id not in eigen_discipline_ids
+    ]
+
+    mogelijke_partners = Profiel.objects.filter(
+        disciplines__id__in=andere_discipline_ids
+    ).exclude(user=request.user)
+
     if request.method == 'POST':
         github_link = request.POST['github_link']
         beschrijving = request.POST['beschrijving']
+        partner_id = request.POST.get('partner')
 
-        partner = zoek_partner(request.user, challenge)
+        partner = None
+        if partner_id:
+            try:
+                partner = User.objects.get(id=partner_id)
+            except User.DoesNotExist:
+                partner = None
 
-        nieuw_project = Project.objects.create(
+        Project.objects.create(
             challenge=challenge,
             deelnemer=request.user,
             github_link=github_link,
@@ -228,7 +243,10 @@ def project_aanmaken(request, challenge_id):
 
         return redirect('mijn_projecten')
 
-    return render(request, 'project_aanmaken.html', {'challenge': challenge})
+    return render(request, 'project_aanmaken.html', {
+        'challenge': challenge,
+        'mogelijke_partners': mogelijke_partners,
+    })
 
 
 @login_required(login_url='login')

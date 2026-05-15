@@ -1,30 +1,49 @@
 {% extends 'base.html' %}
 {% block content %}
     <div style="background: #EBF3FB; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
-        <h2 style="margin: 0 0 0.5rem 0;"> Challenge: {{ challenge.titel }}</h2>
+        <h2 style="margin: 0 0 0.5rem 0;">Challenge: {{ challenge.titel }}</h2>
         <p style="margin: 0; color: #444;">{{ challenge.omschrijving }}</p>
         <p style="margin: 0.5rem 0 0 0;">
             Vereiste disciplines:
-            <strong>{{ challenge.discipline_een }}</strong> + 
+            <strong>{{ challenge.discipline_een }}</strong> +
             <strong>{{ challenge.discipline_twee }}</strong>
         </p>
     </div>
 
     <div style="background: white; padding: 1.5rem; border-radius: 8px;">
-        <h3 style="margin: 0 0 1rem 0;"> Jouw project aanmaken</h3>
+        <h3 style="margin: 0 0 1rem 0;">Project aanmaken</h3>
         <p style="color: #666; margin-bottom: 1rem;">
-            Een <strong>project</strong> is jouw inlevering voor deze challenge. 
-            Vul hieronder je GitHub link in waar je aan gaat werken.
+            Een <strong>project</strong> is jouw inlevering voor deze challenge.
+            Kies hieronder een partner en vul je GitHub link in.
         </p>
 
         <form method="post">
             {% csrf_token %}
+
+            <label><strong>Kies een partner:</strong></label><br>
+            <select name="partner" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="">Zonder partner beginnen</option>
+                {% for mogelijke_partner in mogelijke_partners %}
+                    <option value="{{ mogelijke_partner.user.id }}">
+                        {{ mogelijke_partner.user.username }}
+                        (disciplines:
+                        {% for d in mogelijke_partner.disciplines.all %}
+                            {{ d.naam }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %})
+                    </option>
+                {% empty %}
+                    <option disabled>Geen partners beschikbaar met de andere discipline</option>
+                {% endfor %}
+            </select><br>
+
             <label><strong>GitHub link:</strong></label><br>
-            <input type="url" name="github_link" placeholder="https://github.com/..." 
+            <input type="url" name="github_link" placeholder="https://github.com/..."
                 style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px;"><br>
+
             <label><strong>Beschrijving:</strong></label><br>
             <textarea name="beschrijving" rows="4" placeholder="Beschrijf kort wat jullie gaan maken..."
                 style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px;"></textarea><br>
+
             <button type="submit" style="background: #2E75B6; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;">
                 Project aanmaken
             </button>

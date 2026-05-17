@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+
 class Discipline(models.Model):
     # Discipline die een gebruiker of challenge kan hebben.
     naam = models.CharField(max_length=100)
@@ -12,7 +13,7 @@ class Discipline(models.Model):
 
 
 class Profiel(models.Model):
-
+    # Profiel van een gebruiker met rol en disciplines.
     ROL_KEUZES = [
         ('deelnemer', 'Deelnemer'),
         ('begeleider', 'Begeleider'),
@@ -22,9 +23,9 @@ class Profiel(models.Model):
     rol = models.CharField(max_length=20, choices=ROL_KEUZES, default='deelnemer')
     # Een gebruiker kan meerdere disciplines kiezen op de profielpagina.
     disciplines = models.ManyToManyField(
-    Discipline,
-    blank=True
-)
+        Discipline,
+        blank=True
+    )
 
     def __str__(self):
         return f"{self.user.username} ({self.rol})"
@@ -49,60 +50,32 @@ class Challenge(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
+    # Datum wordt automatisch ingevuld bij aanmaken.
     aangemaakt_op = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.titel
 
 
-class ChallengeDeelname(models.Model):
-
-    STATUS_KEUZES = [
-        ('bezig', 'Bezig'),
-        ('ingediend', 'Ingediend'),
-        ('goedgekeurd', 'Goedgekeurd'),
-        ('afgekeurd', 'Afgekeurd'),
-    ]
-
-    challenge = models.ForeignKey(
-        Challenge,
-        on_delete=models.CASCADE
-    )
-    # Houdt bij welke gebruiker meedoet en wat de status is.
-    deelnemer = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_KEUZES,
-        default='bezig'
-    )
-    feedback = models.TextField(blank=True, null=True)
-    ingediend_op = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.deelnemer.username} - {self.challenge.titel} ({self.status})"
-
-
-@receiver(post_save, sender=User)
-def maak_profiel_aan(sender, instance, created, **kwargs):
-    # Maakt automatisch een profiel aan bij een nieuwe gebruiker.
-    if created:
-        Profiel.objects.create(user=instance)
-
-
-
-
-
 class Project(models.Model):
     # Project met GitHub-link dat bij een challenge hoort.
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
-    deelnemer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='projecten')
-    # Partner wordt automatisch gezocht op basis van discipline.
-    partner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='partner_projecten')
+    deelnemer = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='projecten'
+    )
+    # Partner wordt gekoppeld op basis van discipline of eigen keuze.
+    partner = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='partner_projecten'
+    )
     github_link = models.URLField()
     beschrijving = models.TextField(blank=True)
+    # Status geeft aan in welke fase het project zich bevindt.
     status = models.CharField(
         max_length=20,
         choices=[
@@ -118,3 +91,10 @@ class Project(models.Model):
 
     def __str__(self):
         return f"{self.deelnemer.username} - {self.challenge.titel}"
+
+
+@receiver(post_save, sender=User)
+def maak_profiel_aan(sender, instance, created, **kwargs):
+    # Maakt automatisch een profiel aan bij een nieuwe gebruiker.
+    if created:
+        Profiel.objects.create(user=instance)

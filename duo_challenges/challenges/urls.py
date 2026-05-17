@@ -13,10 +13,10 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
 
     # Routes voor deelnemen, indienen en beoordelen.
-    path('challenge/<int:challenge_id>/deelnemen/', views.deelnemen, name='deelnemen'),
-    path('deelname/<int:deelname_id>/indienen/', views.indienen, name='indienen'),
+  
+  
     path('project/<int:project_id>/beoordelen/', views.beoordelen, name='beoordelen'),
-    path('mijn-challenges/', views.mijn_challenges, name='mijn_challenges'),
+
     path('overzicht/', views.overzicht_ingediend, name='overzicht_ingediend'),
 
     # Routes voor projecten en challenges aanmaken.

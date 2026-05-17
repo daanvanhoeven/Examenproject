@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Discipline, Profiel, Challenge, ChallengeDeelname, Project
+from .models import Discipline, Profiel, Challenge, Project
 
 
 @admin.register(Discipline)
@@ -25,20 +25,9 @@ class ChallengeAdmin(admin.ModelAdmin):
     search_fields = ['titel', 'omschrijving']
 
 
-@admin.register(ChallengeDeelname)
-class ChallengeDeelnameAdmin(admin.ModelAdmin):
-    # Laat zien wie meedoet en wat de status is.
-    list_display = ['deelnemer', 'challenge', 'status', 'ingediend_op']
-    list_filter = ['status']
-    search_fields = ['deelnemer__username', 'challenge__titel']
-
-
-
-
-
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     # Projecten kunnen hier worden bekeken op status.
     list_display = ['deelnemer', 'challenge', 'status', 'ingediend_op']
     list_filter = ['status']
-    search_fields = ['deelnemer__username', 'challenge__titel']    
+    search_fields = ['deelnemer__username', 'challenge__titel']

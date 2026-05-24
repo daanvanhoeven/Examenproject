@@ -1,40 +1,112 @@
 {% extends 'base.html' %}
+
 {% block content %}
-    <h2>Mijn profiel</h2>
-    <p><strong>Gebruikersnaam:</strong> {{ user.username }}</p>
-    <p><strong>Rol:</strong> {{ profiel.rol }}</p>
+<h2>Mijn profiel</h2>
 
-    <p><strong>Mijn disciplines:</strong>
-        {% for d in profiel.disciplines.all %}
-            <span style="background: #2E75B6; color: white; padding: 2px 8px; border-radius: 4px; margin-right: 4px;">{{ d.naam }}</span>
-        {% empty %}
-            Nog niet ingesteld
-        {% endfor %}
-    </p>
+<p><strong>Gebruikersnaam:</strong> {{ user.username }}</p>
+<p><strong>Rol:</strong> {{ profiel.rol }}</p>
 
-    <h3>Disciplines wijzigen</h3>
-    <form method="post">
-        {% csrf_token %}
-        {% for discipline in disciplines %}
-            <label>
-                <input type="checkbox" name="disciplines" value="{{ discipline.id }}"
-                    {% if discipline in profiel.disciplines.all %}checked{% endif %}>
-                {{ discipline.naam }}
-            </label><br>
-        {% endfor %}
-        <br>
-        <button type="submit">Opslaan</button>
-    </form>
+<p>
+    <strong>Mijn disciplines:</strong>
 
-    <h3>Mijn voltooide projecten</h3>
-    {% for deelname in profiel.user.challengedeelname_set.all %}
-        {% if deelname.status == 'goedgekeurd' %}
-            <div style="background: white; padding: 0.8rem; margin-bottom: 0.8rem; border-radius: 8px; border-left: 4px solid green;">
-                <strong>{{ deelname.challenge.titel }}</strong>
-                <p>{{ deelname.feedback }}</p>
-            </div>
-        {% endif %}
+    {% for d in profiel.disciplines.all %}
+        <span class="discipline-badge">
+            {{ d.naam }}
+        </span>
     {% empty %}
-        <p>Nog geen voltooide projecten.</p>
+        Nog niet ingesteld
     {% endfor %}
+</p>
+
+<h3>Disciplines wijzigen</h3>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% for discipline in disciplines %}
+        <label>
+            <input
+                type="checkbox"
+                name="disciplines"
+                value="{{ discipline.id }}"
+                {% if discipline in profiel.disciplines.all %}checked{% endif %}
+            >
+            {{ discipline.naam }}
+        </label>
+        <br>
+    {% endfor %}
+
+    <br>
+
+    <button type="submit" class="save-button">
+        Opslaan
+    </button>
+</form>
+
+<h3>Mijn challenges</h3>
+
+{% for project in projecten %}
+    <div class="project-card status-{{ project.status }}">
+        <p class="project-label">Challenge</p>
+
+        <strong>{{ project.challenge.titel }}</strong>
+
+        <p>
+            <strong>Status:</strong>
+            <span class="status-badge">
+                {{ project.status }}
+            </span>
+        </p>
+
+        {% if project.partner %}
+            <p>
+                <strong>Partner:</strong>
+                {{ project.partner.username }}
+            </p>
+        {% else %}
+            <p class="muted">
+                <strong>Partner:</strong>
+                Nog geen partner gekoppeld
+            </p>
+        {% endif %}
+
+        <p>
+            <strong>GitHub:</strong>
+
+            <a href="{{ project.github_link }}" target="_blank">
+                {{ project.github_link }}
+            </a>
+        </p>
+
+        {% if project.feedback %}
+            <p>
+                <strong>Feedback:</strong>
+                {{ project.feedback }}
+            </p>
+        {% endif %}
+    </div>
+{% empty %}
+    <p class="muted">
+        Je doet nog niet mee aan een challenge.
+    </p>
+{% endfor %}
+
+<h3>Voltooide challenges</h3>
+
+{% for project in projecten %}
+    {% if project.status == 'goedgekeurd' %}
+        <div class="completed-card">
+            <strong>{{ project.challenge.titel }}</strong>
+
+            {% if project.feedback %}
+                <p>{{ project.feedback }}</p>
+            {% endif %}
+        </div>
+    {% endif %}
+{% empty %}
+    <p class="muted">
+        Nog geen voltooide challenges.
+    </p>
+{% endfor %}
+
 {% endblock %}

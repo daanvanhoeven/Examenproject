@@ -71,6 +71,9 @@ def profiel(request):
     profiel, aangemaakt = Profiel.objects.get_or_create(user=request.user)
     disciplines = Discipline.objects.all()
 
+    # Haal alle projecten op van de ingelogde gebruiker.
+    projecten = Project.objects.filter(deelnemer=request.user)
+
     if request.method == 'POST':
         gekozen_ids = request.POST.getlist('disciplines')
         profiel.disciplines.set(gekozen_ids)
@@ -79,7 +82,8 @@ def profiel(request):
 
     return render(request, 'profiel.html', {
         'profiel': profiel,
-        'disciplines': disciplines
+        'disciplines': disciplines,
+        'projecten': projecten,
     })
 
 

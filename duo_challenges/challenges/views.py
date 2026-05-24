@@ -118,55 +118,23 @@ def project_aanmaken(request, challenge_id):
             'vereiste_disciplines': vereiste_disciplines,
         })
 
-    # Zoek deelnemers met de andere vereiste discipline als mogelijke partner.
-    eigen_discipline_ids = eigen_disciplines.values_list('id', flat=True)
-    andere_discipline_ids = [
-        d.id for d in vereiste_disciplines
-        if d.id not in eigen_discipline_ids
-    ]
-
-    mogelijke_partners = Profiel.objects.filter(
-        disciplines__id__in=andere_discipline_ids
-    ).exclude(user=request.user)
-
     if request.method == 'POST':
         github_link = request.POST['github_link']
         beschrijving = request.POST['beschrijving']
-        partner_id = request.POST.get('partner')
 
-        # Haal de gekozen partner op als die is meegegeven.
-        partner = None
-        if partner_id:
-            try:
-                partner = User.objects.get(id=partner_id)
-            except User.DoesNotExist:
-                partner = None
-
+        # Maak het project aan zonder partner, begeleider koppelt die later.
         Project.objects.create(
             challenge=challenge,
             deelnemer=request.user,
             github_link=github_link,
             beschrijving=beschrijving,
-            partner=partner,
+            partner=None,
             status='bezig'
         )
 
-        # Koppel de partner ook terug aan dit project als die al een project heeft.
-        if partner:
-            partner_project = Project.objects.filter(
-                deelnemer=partner,
-                challenge=challenge
-            ).first()
-            if partner_project:
-                partner_project.partner = request.user
-                partner_project.save()
-
         return redirect('mijn_projecten')
 
-    return render(request, 'project_aanmaken.html', {
-        'challenge': challenge,
-        'mogelijke_partners': mogelijke_partners,
-    })
+    return render(request, 'project_aanmaken.html', {'challenge': challenge})
 
 
 @login_required(login_url='login')
@@ -259,3 +227,77 @@ def challenge_aanmaken(request):
         return redirect('challenges_lijst')
 
     return render(request, 'challenge_aanmaken.html', {'disciplines': disciplines})
+
+
+@login_required(login_url='login')
+def partner_kiezen(request, project_id):
+    # Alleen begeleiders mogen een partner koppelen aan een project.
+    project = get_object_or_404(Project, id=project_id)
+
+    try:
+        profiel = Profiel.objects.get(user=request.user)
+    except Profiel.DoesNotExist:
+        return redirect('challenges_lijst')
+
+    if profiel.rol != 'begeleider':
+        return redirect('challenges_lijst')
+
+    # Zoek deelnemers met de andere vereiste discipline zonder partner.
+    vereiste_disciplines = [project.challenge.discipline_een, project.challenge.discipline_twee]
+    deelnemer_disciplines = Profiel.objects.get(user=project.deelnemer).disciplines.all()
+
+    andere_discipline_ids = [
+        d.id for d in vereiste_disciplines
+        if d not in deelnemer_disciplines
+    ]
+
+    # Mogelijke partners hebben de andere discipline en hebben nog geen partner.
+    mogelijke_partners = Profiel.objects.filter(
+        disciplines__id__in=andere_discipline_ids
+    ).exclude(user=project.deelnemer)
+
+    if request.method == 'POST':
+        partner_id = request.POST.get('partner')
+
+        if partner_id:
+            try:
+                partner = User.objects.get(id=partner_id)
+            except User.DoesNotExist:
+                partner = None
+
+            if partner:
+                # Koppel de partner aan het project.
+                project.partner = partner
+                project.save()
+
+                # Koppel ook terug als de partner al een project heeft.
+                partner_project = Project.objects.filter(
+                    deelnemer=partner,
+                    challenge=project.challenge
+                ).first()
+                if partner_project:
+                    partner_project.partner = project.deelnemer
+                    partner_project.save()
+
+        return redirect('overzicht_ingediend')
+
+    return render(request, 'partner_kiezen.html', {
+        'project': project,
+        'mogelijke_partners': mogelijke_partners,
+    })
+
+
+@login_required(login_url='login')
+def projecten_zonder_partner(request):
+    # Alleen begeleiders mogen dit overzicht zien.
+    try:
+        profiel = Profiel.objects.get(user=request.user)
+    except Profiel.DoesNotExist:
+        return redirect('challenges_lijst')
+
+    if profiel.rol != 'begeleider':
+        return redirect('challenges_lijst')
+
+    # Haalt alle projecten op zonder partner.
+    projecten = Project.objects.filter(partner=None)
+    return render(request, 'projecten_zonder_partner.html', {'projecten': projecten})

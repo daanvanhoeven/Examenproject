@@ -16,9 +16,9 @@ urlpatterns = [
   
   
     path('project/<int:project_id>/beoordelen/', views.beoordelen, name='beoordelen'),
-
+    path('project/<int:project_id>/partner-kiezen/', views.partner_kiezen, name='partner_kiezen'),
     path('overzicht/', views.overzicht_ingediend, name='overzicht_ingediend'),
-
+    path('projecten-zonder-partner/', views.projecten_zonder_partner, name='projecten_zonder_partner'),
     # Routes voor projecten en challenges aanmaken.
     path('challenge/<int:challenge_id>/project/aanmaken/', views.project_aanmaken, name='project_aanmaken'),
     path('project/<int:project_id>/indienen/', views.project_indienen, name='project_indienen'),

@@ -12,23 +12,21 @@
 </head>
 <body>
     <nav>
-    <span>Duo Challenges</span>
-    {% if user.is_authenticated %}
-        <div>
-            <a href="{% url 'challenges_lijst' %}">Challenges</a>
-            {% if request.user.profiel.rol == 'begeleider' %}
-        <a href="{% url 'challenge_aanmaken' %}">Challenge aanmaken</a>
-            {% endif %}
-                   <a href="{% url 'mijn_projecten' %}">Mijn Projecten</a>
-            {% if request.user.profiel.rol == 'begeleider' %}
-                <a href="{% url 'overzicht_ingediend' %}">Ingediend overzicht</a>
-            {% endif %}
-            <a href="{% url 'profiel' %}">{{ user.username }}</a>
-            <a href="{% url 'logout' %}">Uitloggen</a>
-            
-        </div>
-    {% endif %}
-</nav>
+        <span>Duo Challenges</span>
+        {% if user.is_authenticated %}
+            <div>
+                <a href="{% url 'challenges_lijst' %}">Challenges</a>
+                <a href="{% url 'mijn_projecten' %}">Mijn Projecten</a>
+                {% if request.user.profiel.rol == 'begeleider' %}
+                    <a href="{% url 'challenge_aanmaken' %}">Challenge aanmaken</a>
+                    <a href="{% url 'projecten_zonder_partner' %}">Projecten zonder partner</a>
+                    <a href="{% url 'overzicht_ingediend' %}">Ingediend overzicht</a>
+                {% endif %}
+                <a href="{% url 'profiel' %}">{{ user.username }}</a>
+                <a href="{% url 'logout' %}">Uitloggen</a>
+            </div>
+        {% endif %}
+    </nav>
     <div class="container">
         {% block content %}{% endblock %}
     </div>

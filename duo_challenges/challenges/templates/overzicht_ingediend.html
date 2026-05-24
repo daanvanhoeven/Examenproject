@@ -2,14 +2,37 @@
 {% block content %}
     <h2>Ingediende Projecten</h2>
     {% for project in projecten %}
-        <div style="background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-            <p><strong>Deelnemer:</strong> {{ project.deelnemer.username }}</p>
-            <p><strong>Challenge:</strong> {{ project.challenge.titel }}</p>
-            <p><strong>GitHub:</strong> <a href="{{ project.github_link }}" target="_blank">{{ project.github_link }}</a></p>
-            <p><strong>Ingediend op:</strong> {{ project.ingediend_op }}</p>
-            <a href="{% url 'beoordelen' project.id %}">
-                <button>Beoordelen</button>
-            </a>
+        <div style="background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 8px;">
+            <p style="color: #888; font-size: 0.85rem; margin: 0;">Challenge</p>
+            <h3 style="margin: 0 0 0.5rem 0;">{{ project.challenge.titel }}</h3>
+            <p style="margin: 0.3rem 0;"><strong>Deelnemer:</strong> {{ project.deelnemer.username }}</p>
+            <p style="margin: 0.3rem 0;">
+                <strong>Partner:</strong>
+                {% if project.partner %}
+                    {{ project.partner.username }}
+                {% else %}
+                    <em style="color: #888;">Nog geen partner</em>
+                {% endif %}
+            </p>
+            <p style="margin: 0.3rem 0;">
+                <strong>GitHub:</strong>
+                <a href="{{ project.github_link }}" target="_blank">{{ project.github_link }}</a>
+            </p>
+            <p style="margin: 0.3rem 0;"><strong>Ingediend op:</strong> {{ project.ingediend_op }}</p>
+            <div style="margin-top: 0.8rem;">
+                <a href="{% url 'beoordelen' project.id %}">
+                    <button style="background: #2E75B6; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">
+                        Beoordelen
+                    </button>
+                </a>
+                {% if not project.partner %}
+                    <a href="{% url 'partner_kiezen' project.id %}">
+                        <button style="background: #5a9e5a; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;">
+                            Partner koppelen
+                        </button>
+                    </a>
+                {% endif %}
+            </div>
         </div>
     {% empty %}
         <p>Er zijn geen ingediende projecten.</p>

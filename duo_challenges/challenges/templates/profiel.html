@@ -24,16 +24,13 @@
     {% csrf_token %}
 
     {% for discipline in disciplines %}
-        <label>
-            <input
-                type="checkbox"
-                name="disciplines"
-                value="{{ discipline.id }}"
-                {% if discipline in profiel.disciplines.all %}checked{% endif %}
-            >
-            {{ discipline.naam }}
-        </label>
-        <br>
+    <label>
+        <input type="checkbox" name="disciplines" value="{{ discipline.id }}" >
+               {% if discipline in profiel.disciplines.all %}  
+        {{discipline.naam}}
+        {% endif %}
+    </label>
+    <br>
     {% endfor %}
 
     <br>

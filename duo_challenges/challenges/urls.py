@@ -7,16 +7,15 @@ urlpatterns = [
     path('profiel/', views.profiel, name='profiel'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    path('', views.challenges_lijst, name='challenges_lijst'),
-    path('profiel/', views.profiel, name='profiel'),
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
 
     # Routes voor deelnemen, indienen en beoordelen.
   
   
     path('project/<int:project_id>/beoordelen/', views.beoordelen, name='beoordelen'),
     path('project/<int:project_id>/partner-kiezen/', views.partner_kiezen, name='partner_kiezen'),
+    path('project/<int:project_id>/uitnodigen/', views.partner_uitnodigen, name='partner_uitnodigen'),
+    path('project/<int:project_id>/uitnodiging/accepteren/', views.uitnodiging_accepteren, name='uitnodiging_accepteren'),
+    path('project/<int:project_id>/uitnodiging/weigeren/', views.uitnodiging_weigeren, name='uitnodiging_weigeren'),
     path('overzicht/', views.overzicht_ingediend, name='overzicht_ingediend'),
     path('projecten-zonder-partner/', views.projecten_zonder_partner, name='projecten_zonder_partner'),
     # Routes voor projecten en challenges aanmaken.

@@ -1,32 +1,131 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h2>Beschikbare Challenges</h2>
-    <p style="color: #666; margin-bottom: 2rem;">
-        Hieronder zie je alle duo challenges. Een <strong>challenge</strong> is een opdracht 
-        waarbij twee disciplines samenwerken. Als je meedoet maak je een <strong>project</strong> 
-        aan — dat is jouw inlevering voor de challenge.
-    </p>
 
-    {% for challenge in challenges %}
-        <div style="background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 8px; border-left: 4px solid #2E75B6;">
-            <h3 style="margin: 0 0 0.5rem 0;">{{ challenge.titel }}</h3>
-            <p style="color: #444;">{{ challenge.omschrijving }}</p>
-            <p style="margin: 0.5rem 0;">
-                <span style="background: #EBF3FB; padding: 3px 10px; border-radius: 4px; margin-right: 6px;">
-                     {{ challenge.discipline_een }}
-                </span>
-                <span style="background: #EBF3FB; padding: 3px 10px; border-radius: 4px;">
-                     {{ challenge.discipline_twee }}
-                </span>
-            </p>
-            <p style="color: #888; font-size: 0.9rem;">Aangemaakt door: {{ challenge.aangemaakt_door }}</p>
-            <a href="{% url 'project_aanmaken' challenge.id %}">
-                <button style="margin-top: 0.5rem; background: #2E75B6; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;">
-                     Doe mee – maak een project aan
-                </button>
-            </a>
-        </div>
-    {% empty %}
-        <p>Er zijn nog geen challenges aangemaakt.</p>
-    {% endfor %}
+<h2>Beschikbare Challenges</h2>
+
+<p style="color: #666; margin-bottom: 2rem;">
+    Hieronder zie je alle duo challenges. Een <strong>challenge</strong> is een opdracht 
+    waarbij twee disciplines samenwerken.
+</p>
+
+{% if uitgenodigde_projecten %}
+    <div style="background: #FFF3CD; padding: 1.2rem; margin-bottom: 1.5rem; border-radius: 8px; border-left: 4px solid orange;">
+        <h3 style="margin: 0 0 0.8rem 0;">Openstaande uitnodigingen</h3>
+        {% for project in uitgenodigde_projecten %}
+            <div style="margin-bottom: 0.8rem;">
+                <p style="margin: 0.3rem 0;">
+                    <strong>{{ project.deelnemer.username }}</strong> heeft je uitgenodigd voor
+                    <strong>{{ project.challenge.titel }}</strong>.
+                </p>
+                <a href="{% url 'uitnodiging_accepteren' project.id %}">
+                    <button style="background: green; color: white; padding: 0.4rem 0.9rem; border: none; border-radius: 4px; cursor: pointer;">
+                        Accepteren
+                    </button>
+                </a>
+                <a href="{% url 'uitnodiging_weigeren' project.id %}">
+                    <button style="background: red; color: white; padding: 0.4rem 0.9rem; border: none; border-radius: 4px; cursor: pointer;">
+                        Weigeren
+                    </button>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% for challenge in challenges %}
+
+    <div style="background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 8px; border-left: 4px solid #2E75B6;">
+
+        <h3 style="margin: 0 0 0.5rem 0;">
+            {{ challenge.titel }}
+        </h3>
+
+        <p style="color: #444;">
+            {{ challenge.omschrijving }}
+        </p>
+
+        <p style="margin: 0.5rem 0;">
+            <span style="background: #EBF3FB; padding: 3px 10px; border-radius: 4px;">
+                {{ challenge.discipline_een }}
+            </span>
+
+            <span style="background: #EBF3FB; padding: 3px 10px; border-radius: 4px;">
+                {{ challenge.discipline_twee }}
+            </span>
+        </p>
+
+        <p style="color: #888; font-size: 0.9rem;">
+            Aangemaakt door: {{ challenge.aangemaakt_door }}
+        </p>
+
+        {# ========================= #}
+        {# PROJECT VAN DE USER       #}
+        {# ========================= #}
+
+            {% if challenge.user_project %}
+
+                <p style="color: green; font-weight: bold;">
+                     Jij doet al mee aan deze challenge
+                </p>
+
+                <p style="margin: 0.3rem 0;">
+                    <strong>Status:</strong> {{ challenge.user_project.status }}
+                </p>
+
+                <p style="margin: 0.3rem 0;">
+                    <strong>Partner:</strong>
+                    {% if challenge.user_project.partner %}
+                        {{ challenge.user_project.partner.username }}
+                    {% else %}
+                        <em>Nog geen partner</em>
+                    {% endif %}
+                </p>
+
+                {% if challenge.user_project.uitgenodigde_partner %}
+                    <p style="color: orange;">
+                         Uitnodiging verzonden naar {{ challenge.user_project.uitgenodigde_partner.username }}
+                    </p>
+                {% endif %}
+
+                {% if challenge.user_project.geblokkeerd %}
+                    <p style="color: orange;">
+                         Project is in uitnodigingsfase
+                    </p>
+                {% endif %}
+
+            {% elif challenge.uitnodiging %}
+
+                <div style="background: #FFF3CD; padding: 0.8rem; border-radius: 4px; margin-top: 0.8rem;">
+                    <p style="margin: 0 0 0.7rem 0; color: #7a5500; font-weight: bold;">
+                        Je bent al uitgenodigd voor deze challenge door {{ challenge.uitnodiging.deelnemer.username }}.
+                        Accepteer of weiger eerst de uitnodiging.
+                    </p>
+                    <a href="{% url 'uitnodiging_accepteren' challenge.uitnodiging.id %}">
+                        <button style="background: green; color: white; padding: 0.4rem 0.9rem; border: none; border-radius: 4px; cursor: pointer;">
+                            Accepteren
+                        </button>
+                    </a>
+                    <a href="{% url 'uitnodiging_weigeren' challenge.uitnodiging.id %}">
+                        <button style="background: red; color: white; padding: 0.4rem 0.9rem; border: none; border-radius: 4px; cursor: pointer;">
+                            Weigeren
+                        </button>
+                    </a>
+                </div>
+
+            {% else %}
+
+                <a href="{% url 'project_aanmaken' challenge.id %}">
+                    <button style="margin-top: 0.5rem; background: #2E75B6; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;">
+                        Doe mee – maak een project aan
+                    </button>
+                </a>
+
+            {% endif %}
+
+    </div>
+
+{% empty %}
+    <p>Er zijn nog geen challenges.</p>
+{% endfor %}
+
 {% endblock %}

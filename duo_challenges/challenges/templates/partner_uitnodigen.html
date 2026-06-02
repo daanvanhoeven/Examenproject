@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="background: #EBF3FB; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+    <h2 style="margin: 0 0 0.5rem 0;">Partner uitnodigen</h2>
+
+    <p style="margin: 0;">
+        <strong>Project:</strong> {{ project.challenge.titel }}
+    </p>
+
+    <p style="margin: 0.3rem 0;">
+        <strong>Deelnemer:</strong> {{ project.deelnemer.username }}
+    </p>
+
+    <p style="margin: 0.3rem 0;">
+        <strong>Status uitnodiging:</strong>
+        {% if project.uitgenodigde_partner %}
+            Uitgenodigd: {{ project.uitgenodigde_partner.username }}
+        {% else %}
+            <em>Geen uitnodiging</em>
+        {% endif %}
+    </p>
+
+    <p style="margin: 0.3rem 0;">
+        <strong>Partner:</strong>
+        {% if project.partner %}
+            {{ project.partner.username }}
+        {% else %}
+            <em>Nog geen partner</em>
+        {% endif %}
+    </p>
+</div>
+
+<div style="background: white; padding: 1.5rem; border-radius: 8px;">
+    <h3 style="margin: 0 0 1rem 0;">Kies iemand om uit te nodigen</h3>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <select name="partner"
+                style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px;">
+
+            <option value="">Selecteer een gebruiker</option>
+
+            {% for gebruiker in gebruikers %}
+                <option value="{{ gebruiker.id }}">
+                    {{ gebruiker.username }}
+                </option>
+            {% empty %}
+                <option disabled>Geen gebruikers beschikbaar</option>
+            {% endfor %}
+
+        </select>
+
+        <button type="submit"
+                style="background: #2E75B6; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;">
+            Uitnodigen
+        </button>
+    </form>
+</div>
+
+{% endblock %}

@@ -2,11 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.db.models import Q
 from .models import Challenge, Profiel, Discipline, Project
 from django.contrib.auth.models import User
 
 
-def zoek_partner(gebruiker, challenge):
+def zoek_partner(gebruiker, challenge): 
     # Haal de disciplines van de huidige gebruiker op.
     eigen_profiel = Profiel.objects.get(user=gebruiker)
     eigen_disciplines = eigen_profiel.disciplines.all()
@@ -60,9 +61,28 @@ def logout_view(request):
 
 @login_required(login_url='login')
 def challenges_lijst(request):
-    # Toont alle challenges op de overzichtspagina.
-    challenges = Challenge.objects.all()
-    return render(request, 'challenges_lijst.html', {'challenges': challenges})
+    goedgekeurde_challenge_ids = Project.objects.filter(
+        Q(deelnemer=request.user) | Q(partner=request.user),
+        status='goedgekeurd'
+    ).values_list('challenge_id', flat=True)
+
+    challenges = Challenge.objects.exclude(id__in=goedgekeurde_challenge_ids)
+
+    projecten = Project.objects.filter(deelnemer=request.user)
+
+    uitgenodigde_projecten = Project.objects.filter(
+        uitgenodigde_partner=request.user
+    )
+
+    for challenge in challenges:
+        challenge.user_project = projecten.filter(challenge=challenge).first()
+        challenge.uitnodiging = uitgenodigde_projecten.filter(challenge=challenge).first()
+
+    return render(request, 'challenges_lijst.html', {
+        'challenges': challenges,
+        'projecten': projecten,
+        'uitgenodigde_projecten': uitgenodigde_projecten,
+    })
 
 
 @login_required(login_url='login')
@@ -92,13 +112,22 @@ def project_aanmaken(request, challenge_id):
     # Alleen deelnemers met de juiste discipline kunnen een project aanmaken.
     challenge = get_object_or_404(Challenge, id=challenge_id)
 
-    # Controleer of de gebruiker al een project heeft bij deze challenge.
-    al_project = Project.objects.filter(
-        deelnemer=request.user,
+    # Controleer of de gebruiker al deelneemt aan deze challenge.
+    al_deelname = Project.objects.filter(
+        Q(deelnemer=request.user) | Q(partner=request.user),
         challenge=challenge
     ).exists()
 
-    if al_project:
+    if al_deelname:
+        return redirect('mijn_projecten')
+
+    # Een openstaande uitnodiging blokkeert zelf starten tot de gebruiker kiest.
+    heeft_uitnodiging = Project.objects.filter(
+        challenge=challenge,
+        uitgenodigde_partner=request.user
+    ).exists()
+
+    if heeft_uitnodiging:
         return redirect('mijn_projecten')
 
     # Haal het profiel op van de ingelogde gebruiker.
@@ -111,7 +140,7 @@ def project_aanmaken(request, challenge_id):
     vereiste_disciplines = [challenge.discipline_een, challenge.discipline_twee]
 
     # Controleer of de gebruiker minimaal één vereiste discipline heeft.
-    heeft_discipline = eigen_disciplines.filter(
+    heeft_discipline = eigen_disciplines.filter(    
         id__in=[d.id for d in vereiste_disciplines]
     ).exists()
 
@@ -156,8 +185,12 @@ def project_indienen(request, project_id):
 
 @login_required(login_url='login')
 def mijn_projecten(request):
-    # Toont de projecten van de ingelogde gebruiker.
-    projecten = Project.objects.filter(deelnemer=request.user)
+    # Toont eigen projecten, partnerprojecten en openstaande uitnodigingen.
+    projecten = Project.objects.filter(
+        Q(deelnemer=request.user) |
+        Q(partner=request.user) |
+        Q(uitgenodigde_partner=request.user)
+    ).distinct()
     return render(request, 'mijn_projecten.html', {'projecten': projecten})
 
 
@@ -305,3 +338,123 @@ def projecten_zonder_partner(request):
     # Haalt alle projecten op zonder partner.
     projecten = Project.objects.filter(partner=None)
     return render(request, 'projecten_zonder_partner.html', {'projecten': projecten})
+
+
+@login_required(login_url='login')
+def partner_uitnodigen(request, project_id):
+    # Haal het project op van de ingelogde deelnemer.
+    project = get_object_or_404(
+        Project,
+        id=project_id,
+        deelnemer=request.user
+    )
+
+    if project.partner:
+        return redirect('mijn_projecten')
+
+    # Bepaal welke discipline de partner moet hebben.
+    vereiste_disciplines = [
+        project.challenge.discipline_een,
+        project.challenge.discipline_twee
+    ]
+
+    try:
+        deelnemer_disciplines = Profiel.objects.get(
+            user=project.deelnemer
+        ).disciplines.all()
+    except Profiel.DoesNotExist:
+        deelnemer_disciplines = Discipline.objects.none()
+
+    andere_discipline_ids = [
+        discipline.id for discipline in vereiste_disciplines
+        if discipline not in deelnemer_disciplines
+    ]
+
+    if not andere_discipline_ids:
+        andere_discipline_ids = [discipline.id for discipline in vereiste_disciplines]
+
+    # Sluit gebruikers uit die al bij deze challenge betrokken zijn.
+    bezette_gebruikers_ids = Project.objects.filter(
+        challenge=project.challenge
+    ).filter(
+        Q(deelnemer__isnull=False) |
+        Q(partner__isnull=False) |
+        Q(uitgenodigde_partner__isnull=False)
+    ).values_list('deelnemer_id', 'partner_id', 'uitgenodigde_partner_id')
+
+    gebruikers_die_niet_mogen = {request.user.id}
+    for deelnemer_id, partner_id, uitgenodigde_partner_id in bezette_gebruikers_ids:
+        if deelnemer_id:
+            gebruikers_die_niet_mogen.add(deelnemer_id)
+        if partner_id:
+            gebruikers_die_niet_mogen.add(partner_id)
+        if uitgenodigde_partner_id:
+            gebruikers_die_niet_mogen.add(uitgenodigde_partner_id)
+
+    # Toon alleen deelnemers met de juiste discipline.
+    gebruikers_ids = Profiel.objects.filter(
+        rol='deelnemer',
+        disciplines__id__in=andere_discipline_ids
+    ).exclude(
+        user_id__in=gebruikers_die_niet_mogen
+    ).values_list('user_id', flat=True).distinct()
+
+    gebruikers = User.objects.filter(id__in=gebruikers_ids)
+
+    if request.method == 'POST':
+        # Controleer server-side of de gekozen partner toegestaan is.
+        partner_id = request.POST.get('partner')
+
+        if partner_id:
+            try:
+                partner = gebruikers.get(id=partner_id)
+            except User.DoesNotExist:
+                partner = None
+
+            if partner:
+                # Slaat de uitnodiging op en blokkeert het project tijdelijk.
+                project.uitgenodigde_partner = partner
+                project.geblokkeerd = True
+                project.save()
+
+        return redirect('mijn_projecten')
+
+    return render(request, 'partner_uitnodigen.html', {
+        'project': project,
+        'gebruikers': gebruikers,
+    })
+
+
+@login_required(login_url='login')
+def uitnodiging_accepteren(request, project_id):
+    # Alleen de uitgenodigde gebruiker mag de uitnodiging accepteren.
+    project = get_object_or_404(
+        Project,
+        id=project_id,
+        uitgenodigde_partner=request.user
+    )
+
+    # Koppel de gebruiker als partner en haal de blok weg.
+    project.partner = request.user
+    project.uitgenodigde_partner = None
+    project.geblokkeerd = False
+    project.save()
+
+    return redirect('mijn_projecten')
+
+
+@login_required(login_url='login')
+def uitnodiging_weigeren(request, project_id):
+    # Alleen de uitgenodigde gebruiker mag de uitnodiging weigeren.
+    project = get_object_or_404(
+        Project,
+        id=project_id,
+        uitgenodigde_partner=request.user
+    )
+
+    # Maak de uitnodiging leeg zodat het project weer vrij is.
+    project.uitgenodigde_partner = None
+    project.geblokkeerd = False
+    project.save()
+
+    return redirect('mijn_projecten')

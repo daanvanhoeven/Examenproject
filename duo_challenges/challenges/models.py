@@ -60,11 +60,13 @@ class Challenge(models.Model):
 class Project(models.Model):
     # Project met GitHub-link dat bij een challenge hoort.
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
+
     deelnemer = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='projecten'
     )
+
     # Partner wordt gekoppeld op basis van discipline of eigen keuze.
     partner = models.ForeignKey(
         User,
@@ -73,8 +75,22 @@ class Project(models.Model):
         blank=True,
         related_name='partner_projecten'
     )
+
+    # partner uitnodigen
+    uitgenodigde_partner = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='uitnodigingen'
+    )
+
+    # Blokkeert het project tijdelijk voor andere inschrijvers.
+    geblokkeerd = models.BooleanField(default=False)
+
     github_link = models.URLField()
     beschrijving = models.TextField(blank=True)
+
     # Status geeft aan in welke fase het project zich bevindt.
     status = models.CharField(
         max_length=20,
@@ -86,6 +102,7 @@ class Project(models.Model):
         ],
         default='bezig'
     )
+
     feedback = models.TextField(blank=True, null=True)
     ingediend_op = models.DateTimeField(null=True, blank=True)
 

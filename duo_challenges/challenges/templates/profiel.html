@@ -1,111 +1,111 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Mijn profiel</h2>
+<section class="profile-card">
+    <div class="profile-avatar">{{ user.username|first|upper }}</div>
+    <h2 class="profile-name">{{ user.username }}</h2>
+    <p class="text-muted">{{ profiel.get_rol_display }}</p>
 
-<p><strong>Gebruikersnaam:</strong> {{ user.username }}</p>
-<p><strong>Rol:</strong> {{ profiel.rol }}</p>
+    <p class="profile-quote">
+        “{{ profiel.quote|default:'Fast workflow, short projects' }}”
+    </p>
 
-<p>
-    <strong>Mijn disciplines:</strong>
-
-    {% for d in profiel.disciplines.all %}
-        <span class="discipline-badge">
-            {{ d.naam }}
-        </span>
-    {% empty %}
-        Nog niet ingesteld
-    {% endfor %}
-</p>
-
-<h3>Disciplines wijzigen</h3>
-
-<form method="post">
-    {% csrf_token %}
-
-    {% for discipline in disciplines %}
-    <label>
-        <input type="checkbox" name="disciplines" value="{{ discipline.id }}" >
-               {% if discipline in profiel.disciplines.all %}  
-        {{discipline.naam}}
-        {% endif %}
-    </label>
-    <br>
-    {% endfor %}
-
-    
-    <br>
-
-    <button type="submit" class="save-button">
-        Opslaan
-    </button>
-</form>
-
-<h3>Mijn challenges</h3>
-
-{% for project in projecten %}
-    <div class="project-card status-{{ project.status }}">
-        <p class="project-label">Challenge</p>
-
-        <strong>{{ project.challenge.titel }}</strong>
-
+    <div class="profile-section">
+        <h3>Mijn disciplines</h3>
         <p>
-            <strong>Status:</strong>
-            <span class="status-badge">
-                {{ project.status }}
-            </span>
+            {% for d in profiel.disciplines.all %}
+                <span class="discipline-badge">{{ d.naam }}</span>
+            {% empty %}
+                <span class="text-muted">Nog niet ingesteld</span>
+            {% endfor %}
         </p>
-
-        {% if project.partner %}
-            <p>
-                <strong>Partner:</strong>
-                {{ project.partner.username }}
-            </p>
-        {% else %}
-            <p class="muted">
-                <strong>Partner:</strong>
-                Nog geen partner gekoppeld
-            </p>
-        {% endif %}
-
-        <p>
-            <strong>GitHub:</strong>
-
-            <a href="{{ project.github_link }}" target="_blank">
-                {{ project.github_link }}
-            </a>
-        </p>
-
-        {% if project.feedback %}
-            <p>
-                <strong>Feedback:</strong>
-                {{ project.feedback }}
-            </p>
-        {% endif %}
     </div>
-{% empty %}
-    <p class="muted">
-        Je doet nog niet mee aan een challenge.
-    </p>
-{% endfor %}
 
-<h3>Voltooide challenges</h3>
+    <div class="profile-section">
+        <h3>Profiel aanpassen</h3>
 
-{% for project in projecten %}
-    {% if project.status == 'goedgekeurd' %}
-        <div class="completed-card">
-            <strong>{{ project.challenge.titel }}</strong>
+        <form method="post">
+            {% csrf_token %}
 
-            {% if project.feedback %}
-                <p>{{ project.feedback }}</p>
+            <div class="profile-section">
+                <h3>Profielquote</h3>
+
+                <input
+                    type="text"
+                    name="quote"
+                    value="{{ profiel.quote }}"
+                    maxlength="150"
+                    class="form-control"
+                    placeholder="Jouw persoonlijke quote"
+                >
+            </div>
+
+            <div class="profile-section">
+                <h3>Disciplines wijzigen</h3>
+
+                <div class="discipline-options">
+                    {% for discipline in disciplines %}
+                        <label class="discipline-option">
+                            <input
+                                type="checkbox"
+                                name="disciplines"
+                                value="{{ discipline.id }}"
+                                {% if discipline in profiel.disciplines.all %}checked{% endif %}
+                            >
+                            {{ discipline.naam }}
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="button">Opslaan</button>
+        </form>
+    </div>
+</section>
+
+<section class="dashboard-section">
+    <h2>Portfolio</h2>
+
+    <div class="portfolio-grid">
+        {% for project in projecten %}
+            <div class="challenge-card">
+                <div class="portfolio-thumb" aria-hidden="true"></div>
+
+                <div class="challenge-card-body">
+                    <h3 class="section-title">{{ project.challenge.titel }}</h3>
+                    <p class="line text-muted">{{ project.status }}</p>
+
+                    {% if project.github_link %}
+                        <a href="{{ project.github_link }}" target="_blank">
+                            GitHub bekijken
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">Je doet nog niet mee aan een challenge.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="dashboard-section">
+    <h2>Voltooide challenges</h2>
+
+    <div class="project-list">
+        {% for project in projecten %}
+            {% if project.status == 'goedgekeurd' %}
+                <div class="compact-card">
+                    <strong>{{ project.challenge.titel }}</strong>
+
+                    {% if project.feedback %}
+                        <p>{{ project.feedback }}</p>
+                    {% endif %}
+                </div>
             {% endif %}
-        </div>
-    {% endif %}
-{% empty %}
-    <p class="muted">
-        Nog geen voltooide challenges.
-    </p>
-    
-{% endfor %}
+        {% empty %}
+            <p class="text-muted">Nog geen voltooide challenges.</p>
+        {% endfor %}
+    </div>
+</section>
 
 {% endblock %}

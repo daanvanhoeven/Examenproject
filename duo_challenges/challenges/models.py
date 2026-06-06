@@ -21,10 +21,17 @@ class Profiel(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     rol = models.CharField(max_length=20, choices=ROL_KEUZES, default='deelnemer')
+
     # Een gebruiker kan meerdere disciplines kiezen op de profielpagina.
     disciplines = models.ManyToManyField(
         Discipline,
         blank=True
+    )
+
+    quote = models.CharField(
+        max_length=150,
+        blank=True,
+        default="Fast workflow, short projects"
     )
 
     def __str__(self):

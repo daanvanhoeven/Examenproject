@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div style="background: white; padding: 1.5rem; border-radius: 8px; border-left: 4px solid red;">
-        <h2 style="color: red;">❌ Je hebt niet de juiste discipline</h2>
+    <div class="danger-card">
+        <h2 class="text-danger">❌ Je hebt niet de juiste discipline</h2>
         <p>Om mee te doen aan <strong>{{ challenge.titel }}</strong> heb je één van deze disciplines nodig:</p>
         <ul>
             {% for d in vereiste_disciplines %}

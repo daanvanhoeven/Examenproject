@@ -95,9 +95,15 @@ def profiel(request):
     projecten = Project.objects.filter(deelnemer=request.user)
 
     if request.method == 'POST':
+        # Disciplines opslaan
         gekozen_ids = request.POST.getlist('disciplines')
         profiel.disciplines.set(gekozen_ids)
+
+        # Quote opslaan
+        profiel.quote = request.POST.get('quote', '').strip()
+
         profiel.save()
+
         return redirect('profiel')
 
     return render(request, 'profiel.html', {

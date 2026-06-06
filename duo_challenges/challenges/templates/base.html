@@ -3,32 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>Duo Challenges</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; }
-        nav { background: #2E75B6; padding: 1rem; color: white; display: flex; justify-content: space-between; }
-        nav a { color: white; text-decoration: none; margin-left: 1rem; }
-        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-    </style>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'challenges/css/style.css' %}">
 </head>
 <body>
-    <nav>
-        <span>Duo Challenges</span>
-        {% if user.is_authenticated %}
-            <div>
-                <a href="{% url 'challenges_lijst' %}">Challenges</a>
-                <a href="{% url 'mijn_projecten' %}">Mijn Projecten</a>
-                {% if request.user.profiel.rol == 'begeleider' %}
-                    <a href="{% url 'challenge_aanmaken' %}">Challenge aanmaken</a>
-                    <a href="{% url 'projecten_zonder_partner' %}">Projecten zonder partner</a>
-                    <a href="{% url 'overzicht_ingediend' %}">Ingediend overzicht</a>
-                {% endif %}
-                <a href="{% url 'profiel' %}">{{ user.username }}</a>
-                <a href="{% url 'logout' %}">Uitloggen</a>
-            </div>
-        {% endif %}
-    </nav>
-    <div class="container">
-        {% block content %}{% endblock %}
+    <div class="app-shell">
+        <nav>
+            <a class="brand" href="{% url 'challenges_lijst' %}">
+                <span class="logo-mark"></span>
+                <span>Duo Challenges</span>
+            </a>
+            {% if user.is_authenticated %}
+                <div class="nav-links">
+                    <a href="{% url 'challenges_lijst' %}">Explore</a>
+                    <a href="{% url 'mijn_projecten' %}">Mijn projecten</a>
+                    {% if request.user.profiel.rol == 'begeleider' %}
+                        <a href="{% url 'challenge_aanmaken' %}">Nieuwe challenge</a>
+                        <a href="{% url 'projecten_zonder_partner' %}">Zonder partner</a>
+                        <a href="{% url 'overzicht_ingediend' %}">Ingediend</a>
+                    {% endif %}
+                    <a class="user-avatar" href="{% url 'profiel' %}">{{ user.username|first|upper }}</a>
+                    <a href="{% url 'logout' %}">Uitloggen</a>
+                </div>
+            {% endif %}
+        </nav>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
     </div>
 </body>
 </html>

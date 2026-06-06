@@ -2,7 +2,7 @@
 {% block content %}
     <h2>Mijn Challenges</h2>
     {% for deelname in deelnames %}
-        <div style="background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+        <div class="compact-card">
             <h3>{{ deelname.challenge.titel }}</h3>
             <p><strong>Status:</strong> {{ deelname.status }}</p>
 
@@ -12,7 +12,7 @@
 
             {% if deelname.status == 'bezig' %}
                 <a href="{% url 'indienen' deelname.id %}">
-                    <button>Indienen</button>
+                    <button class="button">Indienen</button>
                 </a>
             {% endif %}
                        

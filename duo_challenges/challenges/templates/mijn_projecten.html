@@ -1,87 +1,77 @@
 {% extends 'base.html' %}
 {% block content %}
-<style>
-    .status-goedgekeurd { border-left: 4px solid green; }
-    .status-afgekeurd { border-left: 4px solid red; }
-    .status-bezig { border-left: 4px solid #2E75B6; }
-    .status-ingediend { border-left: 4px solid orange; }
-    .badge-goedgekeurd { background: #E2EFDA; }
-    .badge-afgekeurd { background: #FFE0E0; }
-    .badge-ingediend { background: #FFF3CD; }
-    .badge-bezig { background: #EBF3FB; }
-</style>
 
 <h2>Mijn Projecten</h2>
-<p style="color: #666; margin-bottom: 1.5rem;">
+<p class="intro">
     Dit zijn jouw <strong>projecten</strong> — dit zijn jouw inleveringen bij de challenges waar je aan meedoet.
 </p>
 
 {% for project in projecten %}
-    <div class="status-{{ project.status }}" style="background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 8px;">
-        <p style="color: #888; font-size: 0.85rem; margin: 0;">Challenge</p>
-        <h3 style="margin: 0 0 0.5rem 0;">{{ project.challenge.titel }}</h3>
+    <div class="card status-{{ project.status }}">
+        <p class="small-label">Challenge</p>
+        <h3 class="section-title">{{ project.challenge.titel }}</h3>
         {% if project.deelnemer != request.user %}
-            <p style="color: #666; margin: 0.3rem 0;">
+            <p class="line intro">
                 <strong>Project van:</strong> {{ project.deelnemer.username }}
             </p>
         {% endif %}
-        <p style="margin: 0.3rem 0;">
+        <p class="line">
             <strong>Status project:</strong>
-            <span class="badge-{{ project.status }}" style="padding: 2px 8px; border-radius: 4px;">
+            <span class="badge-{{ project.status }}">
                 {{ project.status }}
             </span>
         </p>
-        <p style="margin: 0.3rem 0;">
+        <p class="line">
             <strong>GitHub:</strong>
             <a href="{{ project.github_link }}" target="_blank">{{ project.github_link }}</a>
         </p>
         {% if project.beschrijving %}
-            <p style="margin: 0.3rem 0;"><strong>Beschrijving:</strong> {{ project.beschrijving }}</p>
+            <p class="line"><strong>Beschrijving:</strong> {{ project.beschrijving }}</p>
         {% endif %}
-        <p style="margin: 0.3rem 0;">
+        <p class="line">
             <strong>Partner:</strong>
             {% if project.partner %}
                 {{ project.partner.username }}
             {% else %}
-                <em style="color: #888;">Nog geen partner gekoppeld.</em>
+                <em class="text-muted">Nog geen partner gekoppeld.</em>
             {% endif %}
         </p>
         {% if project.uitgenodigde_partner == request.user %}
-            <div style="background: #FFF3CD; padding: 0.8rem; border-radius: 4px; margin-top: 0.8rem;">
-                <p style="margin: 0 0 0.7rem 0; color: #7a5500; font-weight: bold;">
+            <div class="warning-box">
+                <p class="warning-text">
                     Jij bent uitgenodigd voor dit project.
                 </p>
                 <a href="{% url 'uitnodiging_accepteren' project.id %}">
-                    <button style="background: green; color: white; padding: 0.4rem 0.9rem; border: none; border-radius: 4px; cursor: pointer;">
+                    <button class="button button-small button-success">
                         Accepteren
                     </button>
                 </a>
                 <a href="{% url 'uitnodiging_weigeren' project.id %}">
-                    <button style="background: red; color: white; padding: 0.4rem 0.9rem; border: none; border-radius: 4px; cursor: pointer;">
+                    <button class="button button-small button-danger">
                         Weigeren
                     </button>
                 </a>
             </div>
         {% elif project.uitgenodigde_partner %}
-            <p style="margin: 0.8rem 0 0 0; color: orange; font-weight: bold;">
+            <p class="line-top text-warning">
                 Uitnodiging verzonden naar: {{ project.uitgenodigde_partner.username }}
             </p>
         {% elif project.status == 'bezig' and project.deelnemer == request.user and not project.partner %}
             <a href="{% url 'partner_uitnodigen' project.id %}">
-                <button style="margin-top: 0.8rem; background: #2E75B6; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;">
+                <button class="button button-spaced">
                     Partner uitnodigen
                 </button>
             </a>
         {% endif %}
         {% if project.feedback %}
-            <div style="background: #f9f9f9; padding: 0.8rem; border-radius: 4px; margin-top: 0.5rem;">
+            <div class="feedback-box">
                 <strong>Feedback van begeleider:</strong>
-                <p style="margin: 0.3rem 0;">{{ project.feedback }}</p>
+                <p class="line">{{ project.feedback }}</p>
             </div>
         {% endif %}
         {% if project.status == 'bezig' and project.deelnemer == request.user %}
             <a href="{% url 'project_indienen' project.id %}">
-                <button style="margin-top: 0.8rem; background: #2E75B6; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer;">
+                <button class="button button-spaced">
                     Indienen
                 </button>
             </a>

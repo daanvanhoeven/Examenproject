@@ -4,25 +4,25 @@
     <form method="post">
         {% csrf_token %}
         <label>Titel:</label><br>
-        <input type="text" name="titel" style="width: 100%; padding: 0.5rem;"><br><br>
+        <input type="text" name="titel" class="form-control"><br><br>
 
         <label>Omschrijving:</label><br>
-        <textarea name="omschrijving" rows="4" style="width: 100%; padding: 0.5rem;"></textarea><br><br>
+        <textarea name="omschrijving" rows="4" class="form-control"></textarea><br><br>
 
         <label>Discipline 1:</label><br>
-        <select name="discipline_een" style="width: 100%; padding: 0.5rem;">
+        <select name="discipline_een" class="form-control">
             {% for discipline in disciplines %}
                 <option value="{{ discipline.id }}">{{ discipline.naam }}</option>
             {% endfor %}
         </select><br><br>
 
         <label>Discipline 2:</label><br>
-        <select name="discipline_twee" style="width: 100%; padding: 0.5rem;">
+        <select name="discipline_twee" class="form-control">
             {% for discipline in disciplines %}
                 <option value="{{ discipline.id }}">{{ discipline.naam }}</option>
             {% endfor %}
         </select><br><br>
 
-        <button type="submit">Challenge aanmaken</button>
+        <button type="submit" class="button">Challenge aanmaken</button>
     </form>
 {% endblock %}

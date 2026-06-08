@@ -1,9 +1,9 @@
 :root {
     --bg: #f4f6fb;
-    --panel: #ffffff;
+   --panel: #475569;
     --text: #2f3542;
     --muted: #7c8491;
-    --line: #e4e8ef;
+    --line: #1b53b4;
     --blue: #3b8df2;
     --blue-dark: #2872d5;
     --aqua: #62cbd6;
@@ -25,7 +25,7 @@ body {
     margin: 0;
     color: var(--text);
     background:
-        radial-gradient(circle at top left, #ffffff 0, #f5f8fc 30%, var(--bg) 75%);
+       rgb(184, 175, 175);
 }
 
 a {

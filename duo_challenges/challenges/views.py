@@ -61,18 +61,24 @@ def logout_view(request):
 
 @login_required(login_url='login')
 def challenges_lijst(request):
-    goedgekeurde_challenge_ids = Project.objects.filter(
+    # Verberg challenges waarbij de gebruiker al goedgekeurd of afgekeurd is.
+    verborgen_challenge_ids = Project.objects.filter(
         Q(deelnemer=request.user) | Q(partner=request.user),
-        status='goedgekeurd'
+        status__in=['goedgekeurd', 'afgekeurd']
     ).values_list('challenge_id', flat=True)
 
-    challenges = Challenge.objects.exclude(id__in=goedgekeurde_challenge_ids)
+    challenges = Challenge.objects.exclude(id__in=verborgen_challenge_ids)
 
     projecten = Project.objects.filter(deelnemer=request.user)
 
     uitgenodigde_projecten = Project.objects.filter(
         uitgenodigde_partner=request.user
     )
+
+    # Haal het meest recente actieve project op voor het dashboard.
+    huidig_project = Project.objects.filter(
+        Q(deelnemer=request.user) | Q(partner=request.user)
+).exclude(status__in=['goedgekeurd', 'afgekeurd']).first()
 
     for challenge in challenges:
         challenge.user_project = projecten.filter(challenge=challenge).first()
@@ -82,6 +88,7 @@ def challenges_lijst(request):
         'challenges': challenges,
         'projecten': projecten,
         'uitgenodigde_projecten': uitgenodigde_projecten,
+        'huidig_project': huidig_project,
     })
 
 
@@ -192,11 +199,12 @@ def project_indienen(request, project_id):
 @login_required(login_url='login')
 def mijn_projecten(request):
     # Toont eigen projecten, partnerprojecten en openstaande uitnodigingen.
+    # Afgekeurde projecten worden niet meer getoond.
     projecten = Project.objects.filter(
         Q(deelnemer=request.user) |
         Q(partner=request.user) |
         Q(uitgenodigde_partner=request.user)
-    ).distinct()
+    ).exclude(status='afgekeurd').distinct()
     return render(request, 'mijn_projecten.html', {'projecten': projecten})
 
 

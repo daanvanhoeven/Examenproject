@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Partner kiezen</h2>
+<p class="intro">
+    Kies een partner voor <strong>{{ project.challenge.titel }}</strong> — 
+    deelnemer: <strong>{{ project.deelnemer.username }}</strong>.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% if mogelijke_partners %}
+        <div class="challenge-grid">
+            {% for profiel in mogelijke_partners %}
+                <label class="challenge-card partner-card">
+                    <input type="radio" name="partner" value="{{ profiel.user.id }}" class="partner-radio">
+                    <div class="thumb" aria-hidden="true"></div>
+                    <div class="challenge-card-body">
+                        <h3 class="section-title">{{ profiel.user.username }}</h3>
+                        <p class="line text-muted">
+                            {% for discipline in profiel.disciplines.all %}
+                                <span class="badge">{{ discipline }}</span>
+                            {% endfor %}
+                        </p>
+                    </div>
+                </label>
+            {% endfor %}
+        </div>
+        <button type="submit" class="button button-wide button-spaced">
+            Partner koppelen
+        </button>
+    {% else %}
+        <div class="card">
+            <p class="text-muted">Er zijn op dit moment geen geschikte partners beschikbaar.</p>
+        </div>
+    {% endif %}
+
+</form>
+
+<a href="{% url 'projecten_zonder_partner' %}">
+    <button class="button button-spaced">Terug naar overzicht</button>
+</a>
+
+{% endblock %}

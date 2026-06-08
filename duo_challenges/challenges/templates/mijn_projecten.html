@@ -10,6 +10,10 @@
     <div class="card status-{{ project.status }}">
         <p class="small-label">Challenge</p>
         <h3 class="section-title">{{ project.challenge.titel }}</h3>
+        <p class="line-large">
+            <span class="badge">{{ project.challenge.discipline_een }}</span>
+            <span class="badge">{{ project.challenge.discipline_twee }}</span>
+        </p>
         {% if project.deelnemer != request.user %}
             <p class="line intro">
                 <strong>Project van:</strong> {{ project.deelnemer.username }}

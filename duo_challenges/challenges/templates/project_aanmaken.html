@@ -14,18 +14,23 @@
         <h3 class="card-title">Project aanmaken</h3>
         <p class="intro">
             Een <strong>project</strong> is jouw inlevering voor deze challenge.
-            Vul hieronder je GitHub link en beschrijving in.
+            Vul hieronder je GitHub link en afbeelding in. De beschrijving schrijf je pas wanneer je het project indient.
         </p>
 
-        <form method="post">
+        {% if fout %}
+            <div class="warning-box">
+                <p class="warning-text">{{ fout }}</p>
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <label><strong>GitHub link:</strong></label><br>
             <input type="url" name="github_link" placeholder="https://github.com/..."
-                class="form-control-spaced"><br>
+                class="form-control-spaced" required><br>
 
-            <label><strong>Beschrijving:</strong></label><br>
-            <textarea name="beschrijving" rows="4" placeholder="Beschrijf kort wat jullie gaan maken..."
-                class="form-control-spaced"></textarea><br>
+            <label><strong>Afbeelding:</strong></label><br>
+            <input type="file" name="afbeelding" accept="image/*" class="form-control-spaced" required><br>
 
             <button type="submit" class="button">
                 Project aanmaken

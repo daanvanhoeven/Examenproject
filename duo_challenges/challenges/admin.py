@@ -28,6 +28,6 @@ class ChallengeAdmin(admin.ModelAdmin):
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     # Projecten kunnen hier worden bekeken op status.
-    list_display = ['deelnemer', 'challenge', 'status', 'ingediend_op']
+    list_display = ['deelnemer', 'challenge', 'status', 'likes', 'aangemaakt_op', 'ingediend_op', 'goedgekeurd_op']
     list_filter = ['status']
     search_fields = ['deelnemer__username', 'challenge__titel']

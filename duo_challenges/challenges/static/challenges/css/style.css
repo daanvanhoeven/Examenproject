@@ -212,6 +212,75 @@ h3 {
     border-radius: 10px;
 }
 
+.project-thumb-image,
+.project-thumb-empty {
+    width: 120px;
+    height: 110px;
+    border-radius: 10px;
+}
+
+.project-thumb-image {
+    object-fit: cover;
+    display: block;
+}
+
+.project-thumb-empty {
+    background: #eef2f7;
+}
+
+.card .project-image,
+.article-card .article-image {
+    display: block;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.card .project-image {
+    width: 140px;
+    max-width: 140px;
+    height: 95px;
+    margin: 0.8rem 0 1rem;
+}
+
+.article-card {
+    background: var(--panel);
+    margin-bottom: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: var(--small-shadow);
+    overflow: hidden;
+}
+
+.article-card .article-image {
+    width: 180px;
+    max-width: calc(100% - 2.5rem);
+    height: 120px;
+    margin: 1.25rem 1.25rem 0;
+    border-radius: 10px;
+}
+
+.article-body {
+    padding: 1.25rem;
+}
+
+.article-text {
+    margin: 1rem 0;
+    color: var(--text);
+    line-height: 1.55;
+}
+
+.article-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.like-form {
+    margin: 0;
+}
+
 .portfolio-thumb {
     min-height: 82px;
     border-radius: 8px;

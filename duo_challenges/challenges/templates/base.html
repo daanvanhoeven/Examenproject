@@ -9,14 +9,15 @@
 <body>
     <div class="app-shell">
         <nav>
-            <a class="brand" href="{% url 'challenges_lijst' %}">
+            <a class="brand" href="{% url 'afgeronde_projecten' %}">
                 <span class="logo-mark"></span>
                 <span>Duo Challenges</span>
             </a>
             {% if user.is_authenticated %}
                 <div class="nav-links">
-                    <a href="{% url 'challenges_lijst' %}">Explore</a>
+                    <a href="{% url 'challenges_lijst' %}">Challege lijst</a>
                     <a href="{% url 'mijn_projecten' %}">Mijn projecten</a>
+                    <a href="{% url 'afgeronde_projecten' %}">Afgeronde projecten</a>
                     {% if request.user.profiel.rol == 'begeleider' %}
                         <a href="{% url 'challenge_aanmaken' %}">Nieuwe challenge</a>
                         <a href="{% url 'projecten_zonder_partner' %}">Zonder partner</a>

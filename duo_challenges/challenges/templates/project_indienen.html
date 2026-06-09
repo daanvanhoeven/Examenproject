@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="info-card">
+    <h2 class="section-title">Project indienen</h2>
+    <p class="description">{{ project.challenge.titel }}</p>
+</div>
+
+<div class="card">
+    <h3 class="card-title">Beschrijving van deelnemer</h3>
+    <p class="intro">
+        Schrijf hier kort wat jullie hebben gemaakt. Deze tekst komt op de pagina met afgeronde projecten als het project wordt goedgekeurd.
+    </p>
+
+    {% if fout %}
+        <div class="warning-box">
+            <p class="warning-text">{{ fout }}</p>
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <label><strong>Beschrijving:</strong></label><br>
+        <textarea name="beschrijving" rows="5" placeholder="Beschrijf kort wat jullie hebben gemaakt..."
+            class="form-control-spaced" required>{{ project.beschrijving }}</textarea><br>
+
+        <button type="submit" class="button">
+            Project indienen
+        </button>
+        <a href="{% url 'mijn_projecten' %}" class="button button-light">
+            Annuleren
+        </a>
+    </form>
+</div>
+
+{% endblock %}

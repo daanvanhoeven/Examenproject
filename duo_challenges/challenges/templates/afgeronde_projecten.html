@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Afgeronde projecten</h2>
+<p class="intro">
+    Korte artikelen over de meest recente goedgekeurde projecten.
+</p>
+
+{% for project in projecten %}
+    <article class="article-card">
+        {% if project.afbeelding %}
+            <img class="article-image" src="{{ project.afbeelding.url }}" alt="Afbeelding van {{ project.challenge.titel }}">
+        {% endif %}
+
+        <div class="article-body">
+            <p class="small-label">Goedgekeurd project</p>
+            <h3 class="section-title">{{ project.challenge.titel }}</h3>
+
+            <p class="line-large">
+                <span class="badge">{{ project.challenge.discipline_een }}</span>
+                <span class="badge">{{ project.challenge.discipline_twee }}</span>
+            </p>
+            
+            <p class="line">
+                <strong>Gemaakt door:</strong> {{ project.deelnemer.username }}
+                {% if project.partner %}
+                    en {{ project.partner.username }}
+                {% endif %}
+            </p>
+            <p class="line"><strong>Aangemaakt op:</strong> {{ project.aangemaakt_op|date:"d-m-Y H:i" }}</p>
+            {% if project.ingediend_op %}
+                <p class="line"><strong>Ingediend op:</strong> {{ project.ingediend_op|date:"d-m-Y H:i" }}</p>
+            {% endif %}
+            {% if project.goedgekeurd_op %}
+                <p class="line"><strong>Goedgekeurd op:</strong> {{ project.goedgekeurd_op|date:"d-m-Y H:i" }}</p>
+            {% endif %}
+
+            {% if project.beschrijving %}
+                <p class="article-text">{{ project.beschrijving }}</p>
+            {% endif %}
+
+            <div class="article-actions">
+                <a href="{{ project.github_link }}" target="_blank" class="button button-light">GitHub</a>
+                <form method="post" action="{% url 'project_liken' project.id %}" class="like-form">
+                    {% csrf_token %}
+                    <button type="submit" class="button button-small">Like {{ project.likes }}</button>
+                </form>
+            </div>
+        </div>
+    </article>
+{% empty %}
+    <div class="card">
+        <p class="text-muted">Er zijn nog geen goedgekeurde projecten.</p>
+    </div>
+{% endfor %}
+
+{% endblock %}

@@ -166,14 +166,21 @@ def project_aanmaken(request, challenge_id):
 
     if request.method == 'POST':
         github_link = request.POST['github_link']
-        beschrijving = request.POST['beschrijving']
+        afbeelding = request.FILES.get('afbeelding')
+
+        if not afbeelding:
+            return render(request, 'project_aanmaken.html', {
+                'challenge': challenge,
+                'fout': 'Upload een afbeelding voor je project.',
+            })
 
         # Maak het project aan zonder partner, begeleider koppelt die later.
         Project.objects.create(
             challenge=challenge,
             deelnemer=request.user,
             github_link=github_link,
-            beschrijving=beschrijving,
+            beschrijving='',
+            afbeelding=afbeelding,
             partner=None,
             status='bezig'
         )
@@ -188,12 +195,25 @@ def project_indienen(request, project_id):
     # Zet een project op ingediend zodat een begeleider het kan beoordelen.
     project = get_object_or_404(Project, id=project_id, deelnemer=request.user)
 
-    if project.status == 'bezig':
+    if project.status != 'bezig':
+        return redirect('mijn_projecten')
+
+    if request.method == 'POST':
+        beschrijving = request.POST.get('beschrijving', '').strip()
+
+        if not beschrijving:
+            return render(request, 'project_indienen.html', {
+                'project': project,
+                'fout': 'Vul een beschrijving in voordat je het project indient.',
+            })
+
+        project.beschrijving = beschrijving
         project.status = 'ingediend'
         project.ingediend_op = timezone.now()
         project.save()
+        return redirect('mijn_projecten')
 
-    return redirect('mijn_projecten')
+    return render(request, 'project_indienen.html', {'project': project})
 
 
 @login_required(login_url='login')
@@ -206,6 +226,21 @@ def mijn_projecten(request):
         Q(uitgenodigde_partner=request.user)
     ).exclude(status='afgekeurd').distinct()
     return render(request, 'mijn_projecten.html', {'projecten': projecten})
+
+
+@login_required(login_url='login')
+def afgeronde_projecten(request):
+    # Publicatiepagina met korte artikelen over goedgekeurde projecten.
+    projecten = Project.objects.filter(status='goedgekeurd').order_by('-goedgekeurd_op', '-aangemaakt_op')
+    return render(request, 'afgeronde_projecten.html', {'projecten': projecten})
+
+
+@login_required(login_url='login')
+def project_liken(request, project_id):
+    project = get_object_or_404(Project, id=project_id, status='goedgekeurd')
+    project.likes += 1
+    project.save(update_fields=['likes'])
+    return redirect('afgeronde_projecten')
 
 
 @login_required(login_url='login')
@@ -227,6 +262,10 @@ def beoordelen(request, project_id):
 
         project.status = beslissing
         project.feedback = feedback
+        if beslissing == 'goedgekeurd':
+            project.goedgekeurd_op = timezone.now()
+        else:
+            project.goedgekeurd_op = None
         project.save()
 
         return redirect('overzicht_ingediend')

@@ -97,6 +97,9 @@ class Project(models.Model):
 
     github_link = models.URLField()
     beschrijving = models.TextField(blank=True)
+    aangemaakt_op = models.DateTimeField(auto_now_add=True)
+    afbeelding = models.FileField(upload_to='project_afbeeldingen/', blank=True, null=True)
+    likes = models.PositiveIntegerField(default=0)
 
     # Status geeft aan in welke fase het project zich bevindt.
     status = models.CharField(
@@ -112,6 +115,7 @@ class Project(models.Model):
 
     feedback = models.TextField(blank=True, null=True)
     ingediend_op = models.DateTimeField(null=True, blank=True)
+    goedgekeurd_op = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.deelnemer.username} - {self.challenge.titel}"

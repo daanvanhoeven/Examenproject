@@ -28,7 +28,11 @@
         {% if current_project %}
             <div class="current-project-card status-{{ current_project.status }}">
                 <div class="current-project-body">
-                    <div class="thumb project-thumb" aria-hidden="true"></div>
+                    {% if current_project.afbeelding %}
+                        <img class="project-thumb-image" src="{{ current_project.afbeelding.url }}" alt="Afbeelding van {{ current_project.challenge.titel }}">
+                    {% else %}
+                        <div class="project-thumb-empty"></div>
+                    {% endif %}
                     <div>
                         <h3 class="section-title">{{ current_project.challenge.titel }}</h3>
                         <p class="line text-muted">

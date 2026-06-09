@@ -10,6 +10,9 @@
     <div class="card status-{{ project.status }}">
         <p class="small-label">Challenge</p>
         <h3 class="section-title">{{ project.challenge.titel }}</h3>
+        {% if project.afbeelding %}
+            <img class="project-image" src="{{ project.afbeelding.url }}" alt="Afbeelding van {{ project.challenge.titel }}">
+        {% endif %}
         <p class="line-large">
             <span class="badge">{{ project.challenge.discipline_een }}</span>
             <span class="badge">{{ project.challenge.discipline_twee }}</span>
@@ -25,6 +28,22 @@
                 {{ project.status }}
             </span>
         </p>
+        <p class="line">
+            <strong>Aangemaakt op:</strong> {{ project.aangemaakt_op|date:"d-m-Y H:i" }}
+        </p>
+        <p class="line">
+            <strong>Ingediend op:</strong>
+            {% if project.ingediend_op %}
+                {{ project.ingediend_op|date:"d-m-Y H:i" }}
+            {% else %}
+                <em class="text-muted">Nog niet ingediend.</em>
+            {% endif %}
+        </p>
+  
+            <p class="line">
+                <strong>Goedgekeurd op:</strong> {{ project.goedgekeurd_op|date:"d-m-Y H:i" }}
+            </p>
+ 
         <p class="line">
             <strong>GitHub:</strong>
             <a href="{{ project.github_link }}" target="_blank">{{ project.github_link }}</a>
